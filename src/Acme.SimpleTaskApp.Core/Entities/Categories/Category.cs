@@ -5,22 +5,24 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using Acme.SimpleTaskApp.Entities.Products;
 
 namespace Acme.SimpleTaskApp.Entities.Categories
 {
     [Table("AppCategories")]
-    public class Category : Entity, IHasCreationTime
+    public class Category : Entity<string>, IHasCreationTime
     {
         public const int MaxNameLength = 256;
-        public string Id { get; set; }
+       
 
         [Required]
         [StringLength(MaxNameLength)]
         public string Name { get; set; }
+
+        public string Code { get; set; }
+
+        public ICollection<Product> Products { get; set; }
 
         public DateTime CreationTime { get; set; }
 
@@ -29,11 +31,11 @@ namespace Acme.SimpleTaskApp.Entities.Categories
             CreationTime = Clock.Now;
         }
 
-        public Category(string id, string name)
+        public Category( string name, string code )
             : this()
         {
-            Id = id;
             Name = name;
+            Code = code; 
         }
     }
 }

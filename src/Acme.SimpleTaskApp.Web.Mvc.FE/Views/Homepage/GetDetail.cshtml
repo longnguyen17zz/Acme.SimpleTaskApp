@@ -1,0 +1,73 @@
+﻿@model Acme.SimpleTaskApp.Web.Models.HomepageProducts.ProductDetailViewModel
+
+@{
+    ViewBag.Title = "Chi tiết sản phẩm";
+}
+@section scripts
+{
+    <environment names="Development">
+        <script src="~/view-resources/Views/Customers/Index.js" asp-append-version="true"></script>
+    </environment>
+
+    <environment names="Staging,Production">
+        <script src="~/view-resources/Views/Customers/Index.min.js" asp-append-version="true"></script>
+    </environment>
+}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Hình ảnh sản phẩm -->
+        <div class="col-md-6">
+            <img src="@Model.Product.Images" alt="@Model.Product.Name" class="img-fluid border" style="width: 100%; height: auto;" />
+        </div>
+
+        <div class="col-md-6">
+            <h3>@Model.Product.Name</h3>
+
+            <div class="bg-warning p-2 text-white font-weight-bold d-inline-block rounded">
+                🔥 FLASH SALE
+            </div>
+
+            <div class="mt-3">
+                <h4 class="text-danger font-weight-bold">@Model.Product.Price.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))₫</h4>
+                <del class="text-muted">6.890.000 đ</del>
+                <span class="badge bg-danger text-white">-10%</span>
+            </div>
+
+            <div class="mt-2">
+                <span>Kết thúc trong</span>
+                <span class="bg-danger text-white px-2 py-1 rounded">00 : 01 : 15 : 40</span>
+            </div>
+            <div class="mt-3">
+                <label for="quantity" class="font-weight-bold">Số lượng:</label>
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-outline-secondary" id="decrease" type="button">-</button>
+                    <input id="quantity" value="1" class="form-control mx-2 text-center" style="width: 60px;" min="1" max="@Model.Product.StockQuantity" />
+                    <button class="btn btn-outline-secondary" id="increase" type="button">+</button>
+                </div>
+                <small class="text-muted">Tồn kho: @Model.Product.StockQuantity</small>
+            </div>
+            <div class="mt-3">
+                <button class="btn btn-danger btn-lg w-100 text-uppercase font-weight-bold btn-buy" data-product-id="@Model.Product.Id">
+                    Mua ngay
+                </button>
+                <small class="d-block text-center text-muted">Giao tận nơi hoặc nhận tại cửa hàng</small>
+            </div>
+
+            <div class="mt-4">
+                <h5>Thông tin chung:</h5>
+                <ul class="list-unstyled">
+                  
+                    <li>- Hỗ trợ đổi mới trong 7 ngày.</li>
+                    <li>- Hỗ trợ trả góp MPOS, HDSAISON (xem chi tiết).</li>
+                    <li>- <span class="text-primary">Khuyến mãi giảm thêm 500K khi mua kèm PC/Laptop</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Khuyến mãi / mô tả -->
+    <div class="mt-5">
+        <h4>Mô tả sản phẩm</h4>
+        <p>@Model.Product.Description</p>
+    </div>
+</div>

@@ -1,0 +1,51 @@
+﻿@using Acme.SimpleTaskApp.Web.Models.Checkouts
+@model CheckoutViewModel
+
+<div class="container mt-5">
+    <h2 class="mb-4">Thanh toán</h2>
+    <div class="row">
+        <!-- Bên trái: Form thông tin giao hàng -->
+        <div class="col-md-6">
+            <h5>Thông tin người nhận</h5>
+            <form asp-action="Checkout" asp-controller="Checkouts" method="post">
+                <div class="form-group">
+                    <label for="FullName">Họ và tên</label>
+                    <input type="text" class="form-control" id="FullName" name="shippingName" required />
+                </div>
+                <div class="form-group">
+                    <label for="Address">Địa chỉ giao hàng</label>
+                    <input type="text" class="form-control" id="Address" name="shippingAddress" required />
+                </div>
+                <div class="form-group">
+                    <label for="PhoneNumber">Số điện thoại</label>
+                    <input type="tel" class="form-control" id="PhoneNumber" name="shippingPhone" required />
+                </div>
+
+                <button type="submit" class="btn btn-success mt-3">Xác nhận đơn hàng</button>
+            </form>
+        </div>
+
+        <!-- Bên phải: Thông tin đơn hàng -->
+        <div class="col-md-6">
+            <h5>Đơn hàng của bạn</h5>
+            <ul class="list-group mb-3">
+                @foreach (var item in Model.CartItems)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="my-0">@item.ProductName</h6>
+                            <small class="text-muted">Số lượng: @item.Quantity</small>
+                        </div>
+                        <span class="text-muted">@string.Format("{0:N0}₫", item.Price * item.Quantity)</span>
+                    </li>
+                }
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>Tổng cộng</strong>
+                    <strong class="text-danger">
+                        @string.Format("{0:N0}₫", Model.CartItems.Sum(x => x.Price * x.Quantity))
+                    </strong>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

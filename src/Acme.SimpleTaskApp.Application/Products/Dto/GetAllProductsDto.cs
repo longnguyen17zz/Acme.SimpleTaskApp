@@ -2,21 +2,19 @@
 using Abp.AutoMapper;
 using Abp.Domain.Entities.Auditing;
 using Acme.SimpleTaskApp.Entities.Products;
-using Microsoft.AspNetCore.Http;
 using System;
 
 
 namespace Acme.SimpleTaskApp.Products.Dto;
-public class GetAllProductsDto 
+public class GetAllProductsDto : ProductInput
 {
     
 }
 
 [AutoMapFrom(typeof(Product))]
-public class TaskListDto : EntityDto, IHasCreationTime
+public class TaskListDto : EntityDto<Guid>, IHasCreationTime
 {
-    //public string Id { get; set; }
-    //public string Keyword { get; set; }
+   
     public string Name { get; set; }
 
     public string Description { get; set; }
@@ -27,7 +25,10 @@ public class TaskListDto : EntityDto, IHasCreationTime
 
     public int StockQuantity { get; set; }
 
-    public string Category_Id { get; set; }
+    public string CategoryId { get; set; }
+
+        public string CategoryName { get; set; }
+
 
     public DateTime CreationTime { get; set; }
 

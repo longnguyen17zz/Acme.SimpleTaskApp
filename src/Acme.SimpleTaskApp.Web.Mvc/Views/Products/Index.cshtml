@@ -1,5 +1,11 @@
-﻿@using Acme.SimpleTaskApp.Web.Models.Products
+﻿@using Abp.Authorization
+@inject IPermissionChecker PermissionChecker
+
+@using Acme.SimpleTaskApp.Web.Models.Products
 @model ProductListViewModel
+
+@* Hướng tự build giao diện  *@
+
 @* @section scripts *@
 @* { *@
 @*     <environment names="Development"> *@
@@ -51,7 +57,7 @@
 @*             </td> *@
 @*         </tr> *@
 @*         } *@
-       
+
 @*     </tbody> *@
 @* </table> *@
 
@@ -85,6 +91,7 @@
         <script src="~/view-resources/Views/Productss/Index.min.js" asp-append-version="true"></script>
     </environment>
 }
+
 <section class="content-header">
     <div class="container-fluid">
         <div class="row">
@@ -92,10 +99,13 @@
                 <h1>@L("Products")</h1>
             </div>
             <div class="col-sm-6">
-                <a href="javascript:;" data-toggle="modal" data-target="#ProductCreateModal" class="btn bg-blue float-sm-right">
-                    <i class="fa fa-plus-square"></i>
-                    @L("Create")
-                </a>
+                @if (await PermissionChecker.IsGrantedAsync("Pages.Products.Create"))
+                {
+                    <a href="javascript:;" data-toggle="modal" data-target="#ProductCreateModal" class="btn bg-blue float-sm-right">
+                        <i class="fa fa-plus-square"></i>
+                        @L("Create")
+                    </a>
+                }
             </div>
         </div>
     </div>
@@ -106,14 +116,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <!--Use for bulk actions-->
-                            </div>
-                            <div class="col-md-6">
                                 @await Html.PartialAsync("~/Views/Products/Index.AdvancedSearch.cshtml")
-                            </div>
-                        </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -121,12 +124,16 @@
                                 <thead>
                                     <tr>
                                         <th></th>
-                                        <th scope="col" class="text-center">@L("ProductName")</th>
+                                        <th scope="col" class="text-center" style="width: 50px;">@L("ProductName")</th>
                                         <th scope="col" class="text-center">@L("Description")</th>
                                         <th scope="col" class="text-center">@L("Price")</th>
                                         <th scope="col" class="text-center">@L("StockQuantity")</th>
+                                        <th scope="col" class="text-center">@L("CategoryName")</th>
                                         <th scope="col" class="text-center">@L("Images")</th>
-                                        <th style="width: 150px" scope="col" class="text-center">@L("Actions")</th>
+                                        <th scope="col" class="text-center">@L("CreationTime")</th>
+                                        @if (await PermissionChecker.IsGrantedAsync("Pages.Products.Edit")){
+                                            <th style="width: 150px" scope="col" class="text-center">@L("Actions")</th>
+                                        }
                                     </tr>
                                 </thead>
                                 <tbody>

@@ -1,0 +1,19 @@
+﻿@{
+    ViewData["Title"] = "Đặt hàng thành công";
+}
+
+<div class="container mt-5 text-center">
+    <h2 class="text-success mb-4">🎉 Đặt hàng thành công!</h2>
+    <p>Cảm ơn bạn đã mua sắm tại cửa hàng của chúng tôi.</p>
+    <p>Đơn hàng của bạn đang được xử lý.</p>
+
+    <p class="mt-3 text-muted">Bạn sẽ được chuyển về trang chủ trong vài giây...</p>
+
+    <a href="/" class="btn btn-primary mt-3">Về trang chủ ngay</a>
+</div>
+
+<script>
+    setTimeout(function () {
+        window.location.href = "/";
+    }, 5000); // Chuyển về trang chủ sau 3 giây
+</script>

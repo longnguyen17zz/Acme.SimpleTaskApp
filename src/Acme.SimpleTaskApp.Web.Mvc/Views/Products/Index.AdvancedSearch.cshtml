@@ -1,12 +1,41 @@
 ﻿<div class="abp-advanced-search">
     <form id="ProductsSearchForm" class="form-horizontal">
-        <div class="input-group">
-            <div class="input-group-prepend">
-                <button type="button" class="btn bg-blue btn-search">
-                    <span class="fas fa-search" aria-hidden="true"></span>
+        <div class="form-row align-items-end">
+            <div class="form-group col-md-3">
+                <label for="CategoryId">@L("Category")</label>
+                <select class="form-control filter-category" id="CategoryId" name="CategoryId" required>
+                    <option value="">-- @L("SelectCategory") --</option>
+                </select>
+            </div>
+
+            <div class="form-group col-md-2">
+                <label for="FromDate">@L("FromDate")</label>
+                <input type="date" id="FromDate" name="FromDate" class="form-control" />
+            </div>
+
+            <div class="form-group col-md-2">
+                <label for="ToDate">@L("ToDate")</label>
+                <input type="date" id="ToDate" name="ToDate" class="form-control" />
+            </div>
+
+            <div class="form-group col-md-1">
+                <label>&nbsp;</label>
+                <button id="FilterByDate" class="btn btn-secondary btn-block" style="width:45px;" >
+                    <span class="fas fa-filter"></span>
                 </button>
             </div>
-            <input type="text" name="Keyword" class="form-control txt-search" />
+
+            <div class="form-group col-md-4">
+                <label for="Keyword">@L("KeyWord")</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <button type="button" class="btn bg-blue btn-search">
+                            <span class="fas fa-search" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <input type="text" name="Keyword" class="form-control txt-search" />
+                </div>
+            </div>
         </div>
     </form>
 </div>

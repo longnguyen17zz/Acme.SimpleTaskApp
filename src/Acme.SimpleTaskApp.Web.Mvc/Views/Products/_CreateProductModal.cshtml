@@ -1,43 +1,4 @@
 ﻿<!-- Modal  Create Product-->
-@* <div class="modal fade" id="CreateProductModal" tabindex="-1" aria-labelledby="CreateProductModalLabel" aria-hidden="true"> *@
-@*     <div class="modal-dialog"> *@
-@*         <div class="modal-content"> *@
-@*             <div class="modal-header"> *@
-@*                 <h5 class="modal-title" id="CreateProductModalLabel">@L("New Product")</h5> *@
-@*                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"> *@
-@*                     <span aria-hidden="true">&times;</span> *@
-@*                 </button> *@
-@*             </div> *@
-@*             <div class="modal-body"> *@
-@*                 <form id="CreateProductForm" enctype="multipart/form-data"> *@
-@*                     <div class="form-group"> *@
-@*                         <label for="Name">@L("Name product")</label> *@
-@*                         <input type="text" name="Name" class="form-control" placeholder="@L("Name product")"> *@
-@*                     </div> *@
-@*                     <div class="form-group"> *@
-@*                         <label for="Images">@L("Images")</label> *@
-@*                         <input type="file" name="Images" class="form-control"> *@
-@*                     </div> *@
-@*                     <div class="form-group"> *@
-@*                         <label for="Description">@L("Description")</label> *@
-@*                         <input type="text" name="Description" class="form-control" placeholder="@L("Description")"> *@
-@*                     </div> *@
-@*                     <div class="form-group"> *@
-@*                         <label for="Price">@L("Price")</label> *@
-@*                         <input type="text" name="Price" class="form-control" placeholder="@L("Price")"> *@
-@*                     </div> *@
-@*                     <div class="form-group"> *@
-@*                         <label for="StockQuantity">@L("StockQuantity")</label> *@
-@*                         <input type="text" name="StockQuantity" class="form-control" placeholder="@L("Stock")"> *@
-@*                     </div> *@
-@*                     <button type="submit" class="btn btn-primary">@L("Save")</button> *@
-@*                 </form> *@
-@*             </div> *@
-@*         </div> *@
-@*     </div> *@
-@* </div> *@
-
-
 @using Abp.Authorization.Users
 @using Acme.SimpleTaskApp.Web.Models.Common.Modals
 @using Acme.SimpleTaskApp.Web.Models.Products
@@ -51,14 +12,6 @@
             @await Html.PartialAsync("~/Views/Shared/Modals/_ModalHeader.cshtml", new ModalHeaderViewModel(L("CreateNewProduct")))
             <form name="productCreateForm" role="form" class="form-horizontal" enctype="multipart/form-data">
                 <div class="modal-body">
-                    @* <ul class="nav nav-tabs" role="tablist"> *@
-                    @*     <li class="nav-item"> *@
-                    @*         <a class="nav-link active" data-toggle="tab" role="tab" href="#create-product-details">@L("ProductDetails")</a> *@
-                    @*     </li> *@
-                    @*     <li class="nav-item"> *@
-                    @*         <a class="nav-link" data-toggle="tab" role="tab" href="#create-product-roles">@L("Long")</a> *@
-                    @*     </li> *@
-                    @* </ul> *@
                     <div class="tab-content mt-4">
                         <div role="tabpanel" class="tab-pane container active" id="create-product-details">
                             <div class="form-group row required">
@@ -70,20 +23,19 @@
                             <div class="form-group row ">
                                 <label class="col-md-3 col-form-label">@L("Description")</label>
                                 <div class="col-md-9">
-                                    @* <input type="text" class="form-control" name="Description" required > *@
                                     <textarea id="description" class="form-control" name="Description" rows="4" cols="50"></textarea>
                                 </div>
                             </div>
-                            <div class="form-group row required">
+                            <div class="form-group row">
                                 <label class="col-md-3 col-form-label">@L("Images")</label>
                                 <div class="col-md-9">
-                                    <input type="file" class="form-control" name="Images" required >
+                                    <input type="file" class="form-control" name="Images" >
                                 </div>
                             </div>
                             <div class="form-group row required">
                                 <label class="col-md-3 col-form-label">@L("Price")</label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="Price" required >
+                                    <input type="text" class="form-control" name="Price" id="Price" required >
                                 </div>
                             </div>
                             <div class="form-group row required">
@@ -92,8 +44,15 @@
                                     <input type="text" class="form-control" name="StockQuantity" id="StockQuantity" required >
                                 </div>
                             </div>
-                           
-                            
+                            <div class="form-group row required">
+                                <label class="col-md-3 col-form-label" for="CreateCategoryId">@L("Category")</label>
+                                <div class="col-md-9">
+                                    <select class="form-control" id="CreateCategoryId" name="CategoryId" required>
+                                        <option value="">-- Chọn danh mục --</option>
+                                        
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                      
                     </div>

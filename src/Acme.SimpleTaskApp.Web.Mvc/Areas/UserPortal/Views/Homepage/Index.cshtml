@@ -1,0 +1,58 @@
+﻿@{
+    ViewBag.Title = "Bán thiết bị điện tử - Longnguyen";
+}
+
+@using Acme.SimpleTaskApp.Web.Areas.UserPortal.Models.HomepageProducts
+@model ProductListViewModel
+
+<body>
+    <div class="container my-2">
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-3">
+            <li class="nav-item">
+                <a class="nav-link active text-uppercase font-weight-bold" href="#">Laptop</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-uppercase" href="#">Macbook</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-uppercase" href="#">HP</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-uppercase" href="#">Dell</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-uppercase" href="#">Asus</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-uppercase" href="#">Acer</a>
+            </li>
+        </ul>
+
+        <!-- Products Grid -->
+        <div class="row">
+            <!-- Sản phẩm -->
+
+            @foreach(var product in @Model.Products)
+            {
+                <div class="col-md-3 mb-4" style="position: relative;">
+                    <div class="card h-100">
+                        <!-- Nhãn giảm giá -->
+                        <div style="position: absolute; top: 10px; left: 10px; background: #483D8B; color: white; padding: 2px 8px; font-size: 13px; z-index: 1;">
+                            Giảm giá
+                        </div>
+                        <img src="@product.Images" class="card-img-top" alt="Product" style="height: 200px;width: 100%; object-fit: contain;">
+                        <div class="card-body text-center">
+                            <p class="card-title mb-1">@product.Name</p>
+                            <p class="mb-1 text-muted" style="text-decoration: line-through;">@product.Price</p>
+                            <p class="text-danger font-weight-bold">25,980,000 đ</p>
+                        </div>
+                    </div>
+                </div>
+            }
+           
+
+          
+        </div>
+    </div>
+</body>

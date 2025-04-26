@@ -21,6 +21,8 @@ public class IndexViewModel
         {
             case TaskState.Open:
                 return "label-success";
+            case TaskState.Completed: 
+                return "label-success";
             default:
                 return "label-default";
         }

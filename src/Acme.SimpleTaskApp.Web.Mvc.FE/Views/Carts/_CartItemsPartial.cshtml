@@ -1,0 +1,51 @@
+﻿@model Acme.SimpleTaskApp.Web.Models.Carts.CartViewModel
+
+@if (Model.Items == null || !Model.Items.Any())
+{
+    <div class="alert alert-info">Giỏ hàng của bạn đang trống.</div>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th>Hình ảnh</th>
+                <th>Sản phẩm</th>
+                <th>Đơn giá</th>
+                <th class="text-center">Số lượng</th>
+                <th>Thành tiền</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td class="text-center">
+                        <img src="@item.Images" width="60" alt="@item.ProductName" />
+                    </td>
+                    <td class="text-center">@item.ProductName</td>
+                    <td class="text-center">@item.Price.ToString("N0") đ</td>
+                    <td class="text-center">
+                        <div class="d-inline-flex align-items-center">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary decrease">-</button>
+                            <input type="text" class="form-control form-control-sm text-center mx-1" style="width: 50px;" value="@item.Quantity" readonly />
+                            <button type="submit" class="btn btn-sm btn-outline-secondary increase">+</button>
+                        </div>
+                    </td>
+                    <td class="text-center">@((item.Price * item.Quantity).ToString("N0")) đ</td>
+                    <td class="text-center">
+                        <button data-id="@item.CartItemId" type="button" class="btn btn-sm btn-danger btn-delete-cart">Xoá</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <form method="post" asp-action="Checkout" asp-controller="Carts" onsubmit="return confirm('Xác nhận đặt hàng?');">
+        <div class="text-right mt-4">
+            <h4>Tổng cộng: <strong>@Model.Items.Sum(x => x.Price * x.Quantity).ToString("N0") đ</strong></h4>
+            <button type="submit" class="btn btn-success" id="checkout-btn">Thanh toán</button>
+        </div>
+    </form>
+}

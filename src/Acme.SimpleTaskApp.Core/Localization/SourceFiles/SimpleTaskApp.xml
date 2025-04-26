@@ -120,5 +120,34 @@
     <text name="403PageHeader">Forbidden</text>
     <text name="403PageDescription">You don't have permission to access this resource. Please contact your administrator.</text>
     <text name="403PageButton">Go back to Dashboard</text>
+	<text name="Products" value="Products"/>
+	<text name="Description" value="Description"/>
+	<text name="Price" value="Price"/>
+	<text name="StockQuantity" value="StockQuantity"/>
+	<text name="Images" value="Images"/>
+	<text name="ProductName" value="ProductName"/>
+	<text name="CreateProduct" value="CreateProduct"/>
+	<text name="DeleteProduct" value="DeleteProduct"/>
+	<text name="TaskList" value="TaskList"/>
+	<text name="AddNew" value="AddNew"/>
+	<text name="NewTask" value="NewTask"/>
+    <text name="Category" value="Category"/>
+	<text name="Categories" value="Categories" />
+	<text name="CategoryName" value="CategoryName" />
+	<text name="Code" value="Code" />
+	<text name="CreationTime" value="CreationTime"/>
+	<text name="ImageOld" value="ImageOld" />
+	<text name="EditProduct" value="EditProduct" />
+	<text name="CreateNewProduct" value="CreateNewProduct" />
+	<text name="SelectCategory" value="SelectCategory" />
+	<text name="FromDate" value="FromDate" />
+	<text name="ToDate" value="ToDate" />
+	<text name="KeyWord" value="KeyWord" />
+	<text name="Title" value="Title"/>
+	<text name="AssignedPerson" value="AssignedPerson"/>
+	<text name="Unassigned" value="Unassigned"/>
+	<text name="AllTasks" value="AllTasks"/>
+	<text name="TaskState_Open" value="TaskState_Open"/>
+	<text name="TaskState_Completed" value="TaskState_Completed"/>
   </texts>
 </localizationDictionary>

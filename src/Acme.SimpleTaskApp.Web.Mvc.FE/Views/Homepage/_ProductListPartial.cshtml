@@ -1,0 +1,95 @@
+﻿  <!-- Tabs -->
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link text-uppercase @(Model.CurrentCategoryId == null ? "active font-weight-bold" : "")"
+           href="javascript:void(0);"
+           data-categoryid="">
+            Tất cả
+        </a>
+    </li>
+    @foreach (var category in @Model.Categories)
+    {
+        <li class="nav-item">
+            <a class="nav-link text-uppercase @(Model.CurrentCategoryId == category.Id ? "active font-weight-bold" : "")"
+               href="javascript:void(0);"
+               data-categoryid="@category.Id">
+                @category.Name
+            </a>
+        </li>
+    }
+</ul>
+
+<!-- Products Grid -->
+<div class="row" style="background: url(https://file.hstatic.net/200000722513/file/thang_04_layout_web_-12.png) center center / cover no-repeat;
+    padding: 15px; margin-bottom:20px;">
+    @foreach (var products in @Model.Products)
+    {
+        <div class="col-md-2 mb-4">
+            <div class="card h-100 shadow-sm product-card" data-id="@products.Id" style="cursor:pointer;border-radius:10px;">
+                <img src="@products.Images" class="card-img-top" alt="Product" style="object-fit: contain; height: 150px;">
+
+                <div class="card-body text-center p-2">
+                    <p class="product-name mb-1 text-truncate">@products.Name</p>
+                    <p class="text-danger font-weight-bold mb-1" style="font-size: 16px;">@products.Price.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))₫ </p>
+
+                    <div class="d-flex align-items-center justify-content-center mb-2" style="font-size: 13px;">
+                        <del class="text-muted mr-2">8.790.000₫</del>
+                        <span class="text-danger">-31%</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <span style="font-size: 14px;">🔥</span>
+                        <div class="progress flex-grow-1 mx-2" style="height: 14px; background-color: #f1c40f4a; border-radius: 20px;">
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: 52%;" aria-valuenow="26" aria-valuemin="0" aria-valuemax="50"></div>
+                        </div>
+                        <span style="font-size: 12px;">Còn 26/50 suất</span>
+                    </div>
+                    <div class="text-center">
+                        <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-3">Xem chi tiết</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+<div id="pagination-data"
+     data-pagesize="@Model.PageSize"
+     data-keyword="@Model.Keyword"
+     data-categoryid="@Model.CategoryId"
+     data-currentpage="@Model.CurrentPage">
+</div>
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        @* Nút Previous *@
+        <li class="page-item @(Model.CurrentPage <= 1 ? "disabled" : "")">
+            <a class="page-link"
+               href="javascript:void(0);"
+               data-page="@(Model.CurrentPage - 1)">
+                &laquo;
+            </a>
+        </li>
+        @* Hiển thị từ CurrentPage - 2 đến CurrentPage + 2 *@
+        @{
+            var start = Math.Max(1, Model.CurrentPage - 2);
+            var end = Math.Min(Model.TotalPages, Model.CurrentPage + 2);
+        }
+        @for (int i = start; i <= end; i++)
+        {
+            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                <a class="page-link"
+                   href="javascript:void(0);"
+                   data-page="@i">
+                    @i
+                </a>
+            </li>
+        }
+        @* Nút Next *@
+        <li class="page-item @(Model.CurrentPage >= Model.TotalPages ? "disabled" : "")">
+            <a class="page-link"
+               href="javascript:void(0);"
+               data-page="@(Model.CurrentPage + 1)">
+                &raquo;
+            </a>
+        </li>
+    </ul>
+</nav>

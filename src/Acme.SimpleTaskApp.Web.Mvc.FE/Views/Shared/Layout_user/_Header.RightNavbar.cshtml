@@ -1,0 +1,16 @@
+﻿@using Acme.SimpleTaskApp.Web.Views.Shared.Components.RightNavbarLanguageSwitch
+@using Acme.SimpleTaskApp.Web.Views.Shared.Components.RightNavbarUserArea
+@using Acme.SimpleTaskApp.Web.Views.Shared.Components.SideBarUserArea
+<ul class="navbar-nav ml-auto" style="margin-right:50px;">
+    @await Component.InvokeAsync(typeof(RightNavbarLanguageSwitchViewComponent))
+    @* Giỏ hàng *@
+    <li class="nav-item mx-2">
+        <a class="nav-link position-relative d-flex align-items-center" style="color:white;" href="/Carts/">
+            <i class="fas fa-shopping-cart fa-lg"></i>
+            <span class="ml-1 d-none d-md-inline">Giỏ hàng</span>
+            @await Component.InvokeAsync("CartItemCount")
+        </a>
+    </li>
+    @await Component.InvokeAsync(typeof(SideBarUserAreaViewComponent))
+    @await Component.InvokeAsync(typeof(RightNavbarUserAreaViewComponent))
+</ul>

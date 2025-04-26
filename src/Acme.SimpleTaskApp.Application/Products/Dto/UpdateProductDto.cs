@@ -2,15 +2,16 @@
 using Abp.AutoMapper;
 using Acme.SimpleTaskApp.Entities.Products;
 using Microsoft.AspNetCore.Http;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 
 namespace Acme.SimpleTaskApp.Products.Dto
 {
     [AutoMapFrom(typeof(Product))]
-    public class UpdateProductDto : EntityDto<long>
+    public class UpdateProductDto : EntityDto<Guid>
     {
-        public int Id { get; set; }
+        //public Guid Id { get; set; }
 
         [Required]
         [StringLength(Product.MaxNameLength)]
@@ -21,6 +22,8 @@ namespace Acme.SimpleTaskApp.Products.Dto
         public IFormFile Images { get; set; }
         public decimal Price { get; set; }
         public int StockQuantity { get; set; }
+
+        public string CategoryId { get; set; }
 
        
     }

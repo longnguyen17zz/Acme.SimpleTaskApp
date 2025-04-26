@@ -12,9 +12,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.WebEncoders;
+using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 
@@ -80,7 +82,15 @@ public class Startup
             app.UseExceptionHandler("/Error");
         }
 
-        app.UseStaticFiles();
+        var sharedImagePath = Path.GetFullPath(Path.Combine(env.ContentRootPath, @"..\Product\ProductImages"));
+
+        app.UseStaticFiles(); // mặc định cho wwwroot
+
+        app.UseStaticFiles(new StaticFileOptions
+        {
+            FileProvider = new PhysicalFileProvider(sharedImagePath),
+            RequestPath = "/ProductImages"
+        });
 
         app.UseRouting();
 

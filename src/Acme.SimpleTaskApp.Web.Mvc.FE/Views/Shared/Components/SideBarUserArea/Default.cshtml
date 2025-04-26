@@ -1,0 +1,12 @@
+﻿@using Acme.SimpleTaskApp.Web.Views.Shared.Components.SideBarUserArea
+@model SideBarUserAreaViewModel
+
+<div class="user-panel d-flex">
+    @* <div class="image"> *@
+    @*     <img src="~/img/avatar.png" class="img-circle elevation-2" alt="User Image"> *@
+    @* </div> *@
+    @* <p>Xin chào!</p> *@
+    <div class="info">
+        <a class="d-block"  style="color: white;" href="javascript:void(0);">@Html.Raw(Model.GetShownLoginName())</a>
+    </div>
+</div>

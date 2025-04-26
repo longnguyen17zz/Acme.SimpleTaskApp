@@ -4,11 +4,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Abp.Domain.Entities;
 using Abp.Domain.Entities.Auditing;
 using Abp.Timing;
+using Acme.SimpleTaskApp.Entities.Categories;
 
 namespace Acme.SimpleTaskApp.Entities.Products
 {
     [Table("AppProducts")]
-    public class Product : Entity, IHasCreationTime
+    public class Product : Entity<Guid>, IHasCreationTime
     {
         public const int MaxNameLength = 256;
         public const int MaxDescriptionLength = 64 * 1024; //64KB
@@ -25,8 +26,9 @@ namespace Acme.SimpleTaskApp.Entities.Products
         public decimal Price { get; set; }
 
         public int StockQuantity { get; set; }
-        public string Category_Id { get; set; }
+        public string CategoryId { get; set; }
 
+        public Category Category { get; set; }
         public DateTime CreationTime { get; set; }
 
         public Product()
@@ -34,7 +36,7 @@ namespace Acme.SimpleTaskApp.Entities.Products
             CreationTime = Clock.Now;
         }
 
-        public Product(string name, string description, string image, decimal price, int stockQuantity, string category_Id)
+        public Product(string name, string description, string image, decimal price, int stockQuantity, string categoryId)
             : this()
         {
             Name = name;
@@ -42,7 +44,7 @@ namespace Acme.SimpleTaskApp.Entities.Products
             Images = image;
             Price = price;
             StockQuantity = stockQuantity;
-            Category_Id = category_Id;
+            CategoryId = categoryId;
         }
     }
 }

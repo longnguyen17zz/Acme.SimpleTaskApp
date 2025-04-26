@@ -36,7 +36,9 @@ public class SimpleTaskAppCoreModule : AbpModule
 
         Configuration.Settings.Providers.Add<AppSettingProvider>();
 
+        Configuration.Localization.Languages.Add(new LanguageInfo("vi", "Việt Nam", "famfamfam-flags vn"));
         Configuration.Localization.Languages.Add(new LanguageInfo("fa", "فارسی", "famfamfam-flags ir"));
+
 
         Configuration.Settings.SettingEncryptionConfiguration.DefaultPassPhrase = SimpleTaskAppConsts.DefaultPassPhrase;
         SimpleStringCipher.DefaultPassPhrase = SimpleTaskAppConsts.DefaultPassPhrase;
