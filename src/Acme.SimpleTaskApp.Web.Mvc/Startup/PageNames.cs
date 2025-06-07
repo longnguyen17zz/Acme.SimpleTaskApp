@@ -9,4 +9,8 @@ public class PageNames
     public const string Roles = "Roles";
     public const string Products = "Products";
     public const string Categories = "Categories";
+    public const string Orders = "Orders";
+    public const string Stocks = "Stocks";
+    public const string FlashSales = "FlashSales";
+
 }

@@ -1,51 +1,243 @@
 ﻿@using Acme.SimpleTaskApp.Web.Models.Checkouts
 @model CheckoutViewModel
 
-<div class="container mt-5">
+<style>
+    .payment-method {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+        .payment-method:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .payment-method.selected {
+            border-color: #007bff;
+            background-color: #e9f3ff;
+        }
+
+    .card-details {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s ease-out;
+    }
+
+        .card-details.show {
+            max-height: 500px;
+        }
+</style>
+<div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="bg-light py-3">
+        <div class="container">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="/Homepage" class="text-secondary">
+                        <i class="fas fa-home mr-1"></i>Trang chủ
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="/Carts" class="text-secondary">Giỏ hàng</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="#" class="active text-primary ">Thanh toán</a>
+                </li>
+                
+            </ol>
+        </div>
+    </nav>
+    <!-- Checkout Steps -->
+    <div class="bg-white shadow-sm py-4">
+        <div class="container">
+            <div class="row justify-content-center text-center">
+                <div class="col-4">
+                    <div class="rounded-circle border border-success d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 40px; height: 40px; background: #10b981;">
+                        <span class="text-white font-weight-bold">1</span>
+                    </div>
+                    <div class="small font-weight-bold">Giỏ hàng</div>
+                </div>
+                <div class="col-4">
+                    <div class="rounded-circle border border-primary d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 40px; height: 40px;background: #3b82f6;">
+                        <span class="text-white font-weight-bold">2</span>
+                    </div>
+                    <div class="small font-weight-bold">Thanh toán</div>
+                </div>
+                <div class="col-4">
+                    <div class="rounded-circle border border-secondary d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 40px; height: 40px; background: gray;">
+                        <span class="text-white  font-weight-bold">3</span>
+                    </div>
+                    <div class="small font-weight-bold">Hoàn tất</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <h2 class="mb-4">Thanh toán</h2>
     <div class="row">
         <!-- Bên trái: Form thông tin giao hàng -->
         <div class="col-md-6">
             <h5>Thông tin người nhận</h5>
             <form asp-action="Checkout" asp-controller="Checkouts" method="post">
-                <div class="form-group">
-                    <label for="FullName">Họ và tên</label>
-                    <input type="text" class="form-control" id="FullName" name="shippingName" required />
-                </div>
-                <div class="form-group">
-                    <label for="Address">Địa chỉ giao hàng</label>
-                    <input type="text" class="form-control" id="Address" name="shippingAddress" required />
-                </div>
-                <div class="form-group">
-                    <label for="PhoneNumber">Số điện thoại</label>
-                    <input type="tel" class="form-control" id="PhoneNumber" name="shippingPhone" required />
+                @if (Model.IsBuyNow)
+                {
+                    <input type="hidden" name="productId" value="@Model.ProductId" />
+                    <input type="hidden" name="buyNowQuantity" value="@Model.Quantity" />
+                }
+                <div class="card shadow p-4" style="max-width: 500px; width: 100%;">
+                    <div class="form-group">
+                        <label for="FullName">Họ và tên</label>
+                        <input type="text" class="form-control" id="FullName" name="shippingName" required />
+                    </div>
+                   
+                    <div class="form-group">
+                        <label for="province">Tỉnh/Thành phố</label>
+                        <select id="province" name="province" class="form-control">
+                            <option value="">Chọn tỉnh/thành</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="district">Quận/Huyện</label>
+                        <select id="district" name="district" class="form-control">
+                            <option value="">Chọn huyện</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ward">Phường/Xã</label>
+                        <select id="ward" name="ward" class="form-control">
+                            <option value="">Chọn xã</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="Address">Địa chỉ giao hàng</label>
+                        <input type="text" class="form-control" id="Address" name="shippingAddress" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="PhoneNumber">Số điện thoại</label>
+                        <input type="tel" class="form-control" id="PhoneNumber" name="shippingPhone" required />
+                    </div>
+                    <div class=" mb-2" style="font-weight: 700;">Chọn Phương Thức Thanh Toán</div>
+
+                    <div class="form-group payment-method border rounded p-3 mb-3" id="codMethod">
+                        <div class="custom-control custom-radio">
+                            <input type="radio" id="cod" name="payment" class="custom-control-input" checked>
+                            <label class="custom-control-label font-weight-bold" for="cod">
+                                Thanh toán khi nhận hàng (COD)
+                            </label>
+                        </div>
+                        <small class="text-muted ml-4 d-block mt-2">Bạn sẽ thanh toán bằng tiền mặt khi nhận được hàng</small>
+                        <div class="text-primary ml-4 mt-2">
+                            <i class="fas fa-truck mr-2"></i>Miễn phí vận chuyển
+                        </div>
+                    </div>
+
+                    <div class="form-group payment-method border rounded p-3 mb-3" id="cardMethod">
+                        <div class="custom-control custom-radio">
+                            <input type="radio" id="card" name="payment" class="custom-control-input">
+                            <label class="custom-control-label font-weight-bold" for="card">
+                                Thanh toán bằng thẻ
+                            </label>
+                        </div>
+                        <small class="text-muted ml-4 d-block mt-2">Thanh toán an toàn bằng thẻ tín dụng/ghi nợ</small>
+                        <div class="ml-4 mt-2 d-flex align-items-center">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/visa/visa-original.svg" alt="Visa" style="height: 24px; margin-right: 10px;">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mastercard/mastercard-original.svg" alt="Mastercard" style="height: 24px;">
+                        </div>
+
+                        <!-- Card details -->
+                        <div class="card-details mt-3 ml-4" id="cardDetails">
+                            <div class="form-group">
+                                <label for="cardNumber">Số thẻ</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text"><i class="far fa-credit-card"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-6">
+                                    <label for="expiryDate">Ngày hết hạn</label>
+                                    <input type="text" class="form-control" id="expiryDate" placeholder="MM/YY">
+                                </div>
+                                <div class="form-group col-6">
+                                    <label for="cvv">CVV</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="cvv" placeholder="123">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="cardName">Tên trên thẻ</label>
+                                <input type="text" class="form-control" id="cardName" placeholder="NGUYEN VAN A">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block mt-3" id="confirmBtn">Xác nhận thanh toán</button>
                 </div>
 
-                <button type="submit" class="btn btn-success mt-3">Xác nhận đơn hàng</button>
+                @* <button type="submit" class="btn btn-success mt-3">Xác nhận đơn hàng</button> *@
             </form>
         </div>
 
         <!-- Bên phải: Thông tin đơn hàng -->
         <div class="col-md-6">
             <h5>Đơn hàng của bạn</h5>
-            <ul class="list-group mb-3">
-                @foreach (var item in Model.CartItems)
+            <ul class="list-group mb-3 shadow">
+                @if (Model.CartItems != null && Model.CartItems.Any())
+                {
+                    @foreach (var item in Model.CartItems)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="my-0">@item.ProductName</h6>
+                                <small class="text-muted">Số lượng: @item.Quantity</small>
+                            </div>
+                            <span class="text-muted">@string.Format("{0:N0}₫", item.Price * item.Quantity)</span>
+                        </li>
+                    }
+                }
+                else
                 {
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="my-0">@item.ProductName</h6>
-                            <small class="text-muted">Số lượng: @item.Quantity</small>
+                            <h6 class="my-0">@Model.ProductName</h6>
+                            <small class="text-muted">Số lượng: @Model.Quantity</small>
                         </div>
-                        <span class="text-muted">@string.Format("{0:N0}₫", item.Price * item.Quantity)</span>
+                        <span class="text-muted">@string.Format("{0:N0}₫", Model.Price * Model.Quantity)</span>
                     </li>
                 }
                 <li class="list-group-item d-flex justify-content-between">
                     <strong>Tổng cộng</strong>
                     <strong class="text-danger">
-                        @string.Format("{0:N0}₫", Model.CartItems.Sum(x => x.Price * x.Quantity))
+                        @if (Model.CartItems != null && Model.CartItems.Any())
+                        {
+                            @string.Format("{0:N0}₫", Model.CartItems.Sum(x => x.Price * x.Quantity))
+                        }
+                        else
+                        {
+                            @string.Format("{0:N0}₫", Model.Price * Model.Quantity)
+                        }
                     </strong>
                 </li>
             </ul>
         </div>
     </div>
 </div>
+@section scripts
+{
+    <environment names="Development">
+        <script src="~/view-resources/Views/Customers/Index.js" asp-append-version="true"></script>
+    </environment>
+
+    <environment names="Staging,Production">
+        <script src="~/view-resources/Views/Customers/Index.min.js" asp-append-version="true"></script>
+    </environment>
+}

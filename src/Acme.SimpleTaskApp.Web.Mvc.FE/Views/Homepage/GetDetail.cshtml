@@ -13,46 +13,91 @@
         <script src="~/view-resources/Views/Customers/Index.min.js" asp-append-version="true"></script>
     </environment>
 }
-<div class="container mt-5">
+
+<nav aria-label="breadcrumb" class="bg-light py-3">
+    <div class="container">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item">
+                <a href="/Homepage" class="text-secondary">
+                    <i class="fas fa-home mr-1"></i>Trang chủ
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="#" class="text-primary">Chi tiết sản phẩm</a>
+            </li>
+        </ol>
+    </div>
+</nav>
+<div class="container">
     <div class="row">
         <!-- Hình ảnh sản phẩm -->
         <div class="col-md-6">
             <img src="@Model.Product.Images" alt="@Model.Product.Name" class="img-fluid border" style="width: 100%; height: auto;" />
         </div>
-
         <div class="col-md-6">
             <h3>@Model.Product.Name</h3>
-
-            <div class="bg-warning p-2 text-white font-weight-bold d-inline-block rounded">
-                🔥 FLASH SALE
-            </div>
-
-            <div class="mt-3">
-                <h4 class="text-danger font-weight-bold">@Model.Product.Price.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))₫</h4>
-                <del class="text-muted">6.890.000 đ</del>
-                <span class="badge bg-danger text-white">-10%</span>
-            </div>
-
-            <div class="mt-2">
-                <span>Kết thúc trong</span>
-                <span class="bg-danger text-white px-2 py-1 rounded">00 : 01 : 15 : 40</span>
-            </div>
-            <div class="mt-3">
-                <label for="quantity" class="font-weight-bold">Số lượng:</label>
-                <div class="d-flex align-items-center">
-                    <button class="btn btn-outline-secondary" id="decrease" type="button">-</button>
-                    <input id="quantity" value="1" class="form-control mx-2 text-center" style="width: 60px;" min="1" max="@Model.Product.StockQuantity" />
-                    <button class="btn btn-outline-secondary" id="increase" type="button">+</button>
+            @{
+                var originalPrice = Model.Product.Price;
+                var flashSaleItem = Model.FlashSale?.Items?.FirstOrDefault(p => p.ProductId == Model.Product.Id);
+                var discountAmount = flashSaleItem?.SalePrice ?? 0;
+                var finalPrice = originalPrice - discountAmount;
+            }
+            @if (flashSaleItem != null && flashSaleItem.Sold < flashSaleItem.QuantityLimit)
+            {
+                <div class="bg-warning p-2 text-white font-weight-bold d-inline-block rounded">
+                    🔥 FLASH SALE
                 </div>
-                <small class="text-muted">Tồn kho: @Model.Product.StockQuantity</small>
-            </div>
+
+                <div class="mt-3">
+                    <h4 class="text-danger font-weight-bold" name="FlashSalePrice">
+                        @finalPrice.ToString("N0")₫
+                    </h4>
+                    <del class="text-muted">@originalPrice.ToString("N0")₫</del>
+                    <span class="badge bg-danger text-white">
+                        -@((discountAmount / originalPrice * 100).ToString("0"))%
+                    </span>
+                </div>
+
+                <div class="mt-2">
+                    <span>Kết thúc trong</span>
+                    <span id="flashSaleCountdown" class="bg-danger text-white px-2 py-1 rounded">00 : 00 : 00 : 00</span>
+                </div>
+            }
+            else
+            {
+                <div class="mt-3">
+                    <h4 class="text-danger font-weight-bold">@originalPrice.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))₫</h4>
+                    <del class="text-muted">6.890.000 đ</del>
+                    <span class="badge bg-danger text-white">-10%</span>
+                </div>
+            }
+             <div class="mt-3"> 
+                <label for="quantity" class="font-weight-bold">Số lượng:</label> 
+                 <div class="d-flex align-items-center"> 
+                     <button class="btn btn-outline-secondary" id="decrease" type="button">-</button> 
+                    <input id="quantity" value="1" class="form-control mx-2 text-center" style="width: 60px;" min="1" max="@Model.Stock.StockQuantity" /> 
+                     <button class="btn btn-outline-secondary" id="increase" type="button">+</button>
+                    <button class="btn btn-danger shopping-cart-detail ml-3" data-product-id="@Model.Product.Id"
+                         data-product-id="@Model.Product.Id"
+                        data-sale-price="@(flashSaleItem?.SalePrice ?? 0)"
+                        data-is-flash-sale="@(flashSaleItem != null)">
+                       + <i class="fas fa-shopping-cart"></i> Thêm vào giỏ hàng
+                    </button>
+                </div> 
+                <small class="text-muted">Tồn kho: @Model.Stock.StockQuantity</small> 
+            </div> 
             <div class="mt-3">
-                <button class="btn btn-danger btn-lg w-100 text-uppercase font-weight-bold btn-buy" data-product-id="@Model.Product.Id">
-                    Mua ngay
-                </button>
+                <form method="get" asp-controller="Checkouts" asp-action="BuyNow">
+                    <input type="hidden" name="productId" value="@Model.Product.Id" />
+                    <input type="hidden" name="buyNowQuantity" id="buyNowQuantity" value="1" min="1" />
+                    <input type="hidden" name="FlashSalePrice" id="" value="@( (flashSaleItem?.SalePrice ?? 0).ToString(System.Globalization.CultureInfo.InvariantCulture) )" min="1" />
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; background-color: #dc3545; border-color: #dc3545;">
+                        Mua ngay
+                    </button>
+                </form>
                 <small class="d-block text-center text-muted">Giao tận nơi hoặc nhận tại cửa hàng</small>
             </div>
-
             <div class="mt-4">
                 <h5>Thông tin chung:</h5>
                 <ul class="list-unstyled">
@@ -64,10 +109,42 @@
             </div>
         </div>
     </div>
-
     <!-- Khuyến mãi / mô tả -->
     <div class="mt-5">
         <h4>Mô tả sản phẩm</h4>
         <p>@Model.Product.Description</p>
     </div>
 </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Lấy thời gian kết thúc từ Model
+            const endTime = new Date("@Model.FlashSale?.EndTime.ToString("yyyy-MM-ddTHH:mm:ss")");
+
+            if (!isNaN(endTime)) {
+                const countdownElement = document.getElementById("flashSaleCountdown");
+
+                function updateCountdown() {
+                    const now = new Date();
+                    const distance = endTime - now;
+
+                    if (distance <= 0) {
+                        countdownElement.innerText = "Đã kết thúc";
+                        return;
+                    }
+
+                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    countdownElement.innerText =
+                        `${days.toString().padStart(2, '0')} : ${hours.toString().padStart(2, '0')} : ${minutes.toString().padStart(2, '0')} : ${seconds.toString().padStart(2, '0')}`;
+                }
+
+                updateCountdown(); // gọi lần đầu
+                setInterval(updateCountdown, 1000); // cập nhật mỗi giây
+            }
+        });
+    </script>
+

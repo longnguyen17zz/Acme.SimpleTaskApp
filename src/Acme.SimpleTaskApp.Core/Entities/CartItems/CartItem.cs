@@ -13,12 +13,12 @@ namespace Acme.SimpleTaskApp.Entities.CartItems
 {
     [Table("AppCartItems")]
 
-    public class CartItem : Entity<Guid>
+    public class CartItem : Entity<int>
     {
-        public Guid CartId { get; set; }
+        public int CartId { get; set; }
         [ForeignKey("CartId")]
         public Cart Cart { get; set; }
-        public Guid ProductId { get; set; }
+        public int ProductId { get; set; }
         [ForeignKey("ProductId")]
         public Product Product { get; set; }
         public int Quantity { get; set; }

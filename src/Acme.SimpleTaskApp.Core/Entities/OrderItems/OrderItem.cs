@@ -9,15 +9,15 @@ namespace Acme.SimpleTaskApp.Entities.OrderItems
 {
     [Table("AppOrderItems")]
 
-    public class OrderItem : Entity<Guid>
+    public class OrderItem : Entity<int>
     {
 
-        public Guid OrderId { get; set; }
+        public int OrderId { get; set; }
 
         [ForeignKey("OrderId")]
         public Order Order { get; set; }
 
-        public Guid ProductId   { get; set; }
+        public int  ProductId   { get; set; }
         
         [ForeignKey("ProductId")]
         public Product Product { get; set; }
@@ -31,6 +31,12 @@ namespace Acme.SimpleTaskApp.Entities.OrderItems
             
             Quantity = quantity;
             UnitPrice = unitPrice;
+        }
+
+
+        public OrderItem(int quantity)
+        {
+            Quantity = quantity;
         }
     }
 }

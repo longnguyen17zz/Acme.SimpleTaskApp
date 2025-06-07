@@ -3,8 +3,8 @@ namespace Acme.SimpleTaskApp.Web.Models.Carts
 {
     public class CartItemViewModel
     {
-        public Guid CartItemId { get; set; }
-        public Guid ProductId { get; set; }
+        public int CartItemId { get; set; }
+        public int ProductId { get; set; }
         public string ProductName { get; set; }
 
         public string Images { get; set; }
@@ -17,7 +17,7 @@ namespace Acme.SimpleTaskApp.Web.Models.Carts
 
         //public decimal Total => Price * Quantity;
 
-        public CartItemViewModel(Guid cartItemId,Guid productId, string productName, string images, int quantity, decimal price)
+        public CartItemViewModel(int cartItemId, int productId, string productName, string images, int quantity, decimal price)
         {
             CartItemId = cartItemId;
             ProductId = productId;

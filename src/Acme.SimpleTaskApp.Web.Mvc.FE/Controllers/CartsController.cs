@@ -8,6 +8,7 @@ using Acme.SimpleTaskApp.Orders;
 using Acme.SimpleTaskApp.Web.Models.Carts;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,7 +18,7 @@ namespace Acme.SimpleTaskApp.Web.Controllers
     {
         public readonly ICartItemAppService _cartItemAppService;
         public readonly IOrderAppService _orderAppService;
-        public CartsController(ICartItemAppService cartItemAppService, IOrderAppService orderAppService, IRepository<CartItem, Guid> cartItemRepository)
+        public CartsController(ICartItemAppService cartItemAppService, IOrderAppService orderAppService, IRepository<CartItem> cartItemRepository)
         {
             _cartItemAppService = cartItemAppService;
             _orderAppService = orderAppService;
@@ -39,19 +40,21 @@ namespace Acme.SimpleTaskApp.Web.Controllers
             return View(model);
         }
         [HttpPost]
-        public async Task<IActionResult> AddToCart(Guid productId, int quantity)
+        public async Task<IActionResult> AddToCart(int productId, int quantity, decimal? unitPrice)
         {
+
              var cartItem = new AddCartItemDto
             {
                 ProductId = productId,
-                Quantity = quantity
+                Quantity = quantity,
+                FlashSalePrice = unitPrice,
             };
              await _cartItemAppService.CreateAsync(cartItem);
 
             return Ok(); // báo thành công cho AJAX
         }
         [HttpPost]
-        public async Task<IActionResult> RemoveFromCart(Guid cartItemId)
+        public async Task<IActionResult> RemoveFromCart(int cartItemId)
         {
             await _cartItemAppService.DeleteAsync(cartItemId);
 
@@ -77,6 +80,26 @@ namespace Acme.SimpleTaskApp.Web.Controllers
             var count = await _cartItemAppService.GetCartCount();
             return Content(count.ToString());
         }
-       
+
+        [HttpPost]
+        public IActionResult DeleteSelected(List<int> selectedIds)
+        {
+            if (selectedIds == null || !selectedIds.Any())
+            {
+                TempData["Error"] = "Vui lòng chọn sản phẩm để xoá.";
+                return RedirectToAction("Index");
+            }
+
+            foreach (var id in selectedIds)
+            {
+                // Gọi service để xóa từng sản phẩm theo ID
+                _cartItemAppService.DeleteItem(id);
+            }
+
+            TempData["Success"] = "Đã xoá các sản phẩm đã chọn.";
+            return RedirectToAction("Index");
+        }
+
+
     }
 }

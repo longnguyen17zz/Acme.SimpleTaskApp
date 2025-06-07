@@ -149,5 +149,18 @@
 	<text name="AllTasks" value="AllTasks"/>
 	<text name="TaskState_Open" value="TaskState_Open"/>
 	<text name="TaskState_Completed" value="TaskState_Completed"/>
+	  <text name="DashBoards" value="DashBoards"/>
+	  <text name="Orders" value="Orders"/>
+	  <text name="Stocks" value="Stocks"/>
+	  <text name="EditQuantity" value="EditQuantity"/>
+	  <text name="PhoneNumber" value="PhoneNumber"/>
+	  <text name="OrderDate" value="OrderDate"/>
+	  <text name="Status" value="Status"/>
+	  <text name="PaymentMethod" value="PaymentMethod"/>
+	  <text name="TotalPrice" value="TotalPrice"/>
+	  <text name="Address" value="Address"/>
+	  <text name="Confirm" value="Confirm"/>
+	  <text name="EditStock" value="EditStock"/>
+
   </texts>
 </localizationDictionary>

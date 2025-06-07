@@ -4,12 +4,22 @@
 <ul class="navbar-nav ml-auto" style="margin-right:50px;">
     @await Component.InvokeAsync(typeof(RightNavbarLanguageSwitchViewComponent))
     @* Giỏ hàng *@
-    <li class="nav-item mx-2">
-        <a class="nav-link position-relative d-flex align-items-center" style="color:white;" href="/Carts/">
-            <i class="fas fa-shopping-cart fa-lg"></i>
-            <span class="ml-1 d-none d-md-inline">Giỏ hàng</span>
-            @await Component.InvokeAsync("CartItemCount")
+    <li class="nav-item mx-2 d-flex justify-content-center align-items-center">
+        <a href="#" class="text-dark position-relative mr-3">
+            <i class="fas fa-heart fa-lg"></i>
+            <span class="badge badge-danger position-absolute top-0 start-100 translate-middle rounded-circle">3</span>
         </a>
+        @{
+            var isAuthenticated = User?.Identity?.IsAuthenticated ?? false;
+        }
+        <a href="@(isAuthenticated ? Url.Action("Index", "Carts") : "#")"
+           class="text-dark position-relative" style="margin-left: 15px; @(isAuthenticated ? "" : "pointer-events: none; opacity: 0.5;")">
+            <i class="fas fa-shopping-cart fa-lg"></i>
+            <span class="badge badge-danger position-absolute top-0 start-100 translate-middle rounded-circle">
+                @await Component.InvokeAsync("CartItemCount")
+            </span>
+        </a>
+
     </li>
     @await Component.InvokeAsync(typeof(SideBarUserAreaViewComponent))
     @await Component.InvokeAsync(typeof(RightNavbarUserAreaViewComponent))

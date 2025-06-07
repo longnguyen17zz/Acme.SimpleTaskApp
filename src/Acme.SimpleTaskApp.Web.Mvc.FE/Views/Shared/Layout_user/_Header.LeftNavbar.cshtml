@@ -1,18 +1,23 @@
-﻿<ul class="navbar-nav">
+﻿
+<ul class="navbar-nav" style="width: 50%;">
    
-    <li>
-        <img style="height: 45px;" src="~/img/logo-removebg-preview.png"/>
-    </li>
-    <li class="nav-item d-none d-sm-inline-block">
-        <a class="nav-link" style="color:white;" asp-controller="Homepage" asp-action="Index">@L("HomePage")</a>
+    <li class="d-flex">
+        <!-- Logo -->
+        <div class="d-flex align-items-center">
+            <a asp-controller="Homepage" asp-action="Index" class="h4 text-danger font-weight-bold d-flex align-items-center mb-0">
+                <i class="fas fa-laptop-code mr-2"></i>
+                <span>TechZone</span>
+            </a>
+        </div>
     </li>
    
-    <li class="nav-item">
-        <form class="form-inline">
-            <div class="input-group">
-                <input type="text" name="Keyword" class="form-control" placeholder="Tìm kiếm..." />
+    <li class="nav-item" style="width:80%;">
+        <!-- Search Bar -->
+        <form class="d-none d-md-flex flex-grow-1 mx-4">
+            <div class="input-group w-100">
+                <input type="text" name="Keyword" class="form-control border-danger" value="@ViewBag.Keyword" placeholder="Tìm kiếm sản phẩm...">
                 <div class="input-group-append">
-                    <button class="btn btn-primary" type="submit">
+                    <button class="btn btn-danger" type="submit">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
@@ -20,3 +25,5 @@
         </form>
     </li>
 </ul>
+
+

@@ -1,7 +1,6 @@
 ﻿@{
     ViewBag.Title = "Bán thiết bị điện tử - Longnguyen";
 }
-
 @using Acme.SimpleTaskApp.Web.Models.HomepageProducts
 @model HomepageViewModel
 @section scripts
@@ -14,26 +13,75 @@
         <script src="~/view-resources/Views/Customers/Index.min.js" asp-append-version="true"></script>
     </environment>
 }
-<style>
-    .product-card {
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s;
-    }
+@section styles {
+<link href="~/css/Homepage/Style.css" rel="stylesheet" />
+}
+<body class="bg-white;">
+    <!-- Sticky Banners -->
+    <div class="position-fixed d-none d-lg-block" style="top: 190px; left: 0; z-index: 1030;">
+        <div class="ml-2">
+            <a href="/pages/pc-gvn" target="_blank" aria-label="PC GVN KM T04">
+                <img src="https://file.hstatic.net/200000722513/file/thang_04_pc_tang_man_banner_side_web.jpg"
+                     alt="PC GVN KM T04" class="img-fluid" style="max-height: 302px;">
+            </a>
+        </div>
+    </div>
 
-    .product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    }
-</style>
-<body>
+    <div class="position-fixed d-none d-lg-block" style="top: 190px; right: 0; z-index: 1030;">
+        <div class="mr-2">
+            <a href="/pages/laptop-gaming" target="_blank" aria-label="Laptop gaming T4">
+                <img src="https://file.hstatic.net/200000722513/file/gearvn-laptop-t4-banner-side.jpg"
+                     alt="Laptop gaming T4" class="img-fluid" style="max-height: 302px;">
+            </a>
+        </div>
+    </div>
+
+    <nav class="bg-danger text-white">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center py-1 flex-wrap">
+                <!-- Menu links -->
+                <div class="d-flex align-items-center flex-wrap">
+                    <a href="#" class="text-white px-3 py-1 rounded d-flex align-items-center hover-effect">
+                        <i class="fas fa-bars mr-2"></i>
+                        <span>Danh mục</span>
+                    </a>
+                    <a href="#" class="text-white px-3 py-2 rounded hover-effect">Trang chủ</a>
+                    <a href="#" class="text-white px-3 py-2 rounded hover-effect">Sản phẩm mới</a>
+                    <a href="#" class="text-white px-3 py-2 rounded hover-effect">Khuyến mãi</a>
+                    <a href="#" class="text-white px-3 py-2 rounded hover-effect">Tin tức</a>
+                    <a href="#" class="text-white px-3 py-2 rounded hover-effect">Liên hệ</a>
+                </div>
+
+                <!-- Promo badge -->
+                <div class="d-none d-md-block">
+                    <span class="bg-warning text-dark px-3 py-1 rounded-pill small font-weight-medium">
+                        Giảm giá 50%
+                    </span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <style>
+        .col-1-5 {
+            flex: 0 0 20%;
+            max-width: 20%;
+        }
+
+        .hover-effect:hover {
+        background-color: #c82333;
+        text-decoration: none;
+        }
+    </style>
     <!--Slider-->
-    <div style="margin: 0 200px;">
-        <div id="mainCarousel" class="carousel slide mb-4" data-ride="carousel" data-interval="2000">
+    <div>
+        <div id="mainCarousel" class="carousel slide mb-4"  data-ride="carousel" data-interval="2000" style="margin: 1px 150px;">
             <ol class="carousel-indicators">
                 <li data-target="#mainCarousel" data-slide-to="0" class="active"></li>
                 <li data-target="#mainCarousel" data-slide-to="1"></li>
                 <li data-target="#mainCarousel" data-slide-to="2"></li>
             </ol>
-            <div class="carousel-inner rounded" style="height: 420px;">
+            <div class="carousel-inner" style="height: 420px;">
                 <div class="carousel-item active">
                     <img src="~/img/ImageProducts/thang_02_pc_gvn_banner_web_slider_800x400.webp" style="height: 100%; object-fit: contain;" class="d-block w-100" alt="Slide 1">
                     <div class="carousel-caption d-none d-md-block">
@@ -66,10 +114,99 @@
             </a>
         </div>
     </div>
+    <section class="py-5 bg-light" style="border-top: 1px solid lightgray; ">
+        <div class="container" style="border-bottom: 1px solid lightgray; ">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="h3 font-weight-bold mb-0">Sản phẩm nổi bật</h2>
+                <a href="#" class="text-danger font-weight-bold">
+                    Xem tất cả <i class="fas fa-chevron-right ml-1"></i>
+                </a>
+            </div>
+            <div class="row">
+                <!-- Product card -->
+                @foreach(var productTopItem in @Model.ProductTops)
+                {
+                    <div class="col-sm-6 col-md-4 col-1-5 col-lg-3 mb-4">
+                        <div class="card h-100 shadow-sm border-0">
+                            <div class="position-relative">
+                                <img src="@productTopItem.Image"
+                                     class="card-img-top p-3" alt="MacBook Pro" style="height:200px; object-fit: cover; ">
+                                <span class="badge badge-danger position-absolute" style="top: 10px; right: 10px;">-20%</span>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">@productTopItem.Name</h5>
+                                <div class="mb-2 text-warning" style="font-size: 13px;">
+                                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                                    <small class="text-muted ml-1">(42)</small>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-auto">
+                                    <div>
+                                        <span class="text-danger font-weight-bold">@productTopItem.Price.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))₫</span><br>
+                                        <small class="text-muted"><s>36.990.000đ</s></small>
+                                    </div>
+                                    <button class="btn btn-danger rounded-circle shopping-cart">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
     <div id="productList" class="container my-2">
         @Html.Partial("_ProductListPartial", Model)
     </div>
-    
+    <section class="py-5 bg-white">
+        <div class="container">
+            <h2 class="text-center h3 font-weight-bold mb-5">Thương hiệu nổi bật</h2>
+            <div class="row text-center">
+                <div class="col-6 col-sm-4 col-md-2 mb-4 offset-md-1">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Apple-logo.png/640px-Apple-logo.png"
+                         alt="Apple"
+                         class="img-fluid brand-logo">
+                </div>
+                <div class="col-6 col-sm-4 col-md-2 mb-4">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Asus_logo_2016.svg/640px-Asus_logo_2016.svg.png"
+                         alt="ASUS"
+                         class="img-fluid brand-logo">
+                </div>
+                <div class="col-6 col-sm-4 col-md-2 mb-4">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Dell_logo_2016.svg/640px-Dell_logo_2016.svg.png"
+                         alt="Dell"
+                         class="img-fluid brand-logo">
+                </div>
+                <div class="col-6 col-sm-4 col-md-2 mb-4">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/HP_logo_2012.svg/640px-HP_logo_2012.svg.png"
+                         alt="HP"
+                         class="img-fluid brand-logo">
+                </div>
+                <div class="col-6 col-sm-4 col-md-2 mb-4">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Logitech_logo.svg/640px-Logitech_logo.svg.png"
+                         alt="Logitech"
+                         class="img-fluid brand-logo">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        .brand-logo {
+            height: 48px;
+            object-fit: contain;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+            .brand-logo:hover {
+                opacity: 1;
+            }
+    </style>
+   
+
 </body>
 
 

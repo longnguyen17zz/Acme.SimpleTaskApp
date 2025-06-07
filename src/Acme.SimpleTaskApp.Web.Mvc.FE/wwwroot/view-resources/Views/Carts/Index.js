@@ -4,8 +4,8 @@
             function updateTotalPrice() {
                 let total = 0;
                 $('tbody tr').each(function () {
-                    const quantity = parseInt($(this).find('input').val());
-                    const price = parseInt($(this).find('td:nth-child(3)').text().replace(/\D/g, ''));
+                    const quantity = parseInt($(this).find('input[name="quantity"]').val());
+                    const price = parseInt($(this).find('td:nth-child(5)').text().replace(/\D/g, ''));
                     total += quantity * price;
 
                     //$(".quantity-input-hidden").eq(index).val(quantity);
@@ -17,15 +17,15 @@
             $('.increase').on('click', function (e) {
                 e.preventDefault();
                 const $row = $(this).closest('tr');
-                const $input = $row.find('input');
+                const $input = $row.find('input[name="quantity"]');
                 let quantity = parseInt($input.val());
 
                 quantity++;
                 $input.val(quantity);
 
-                const price = parseInt($row.find('td:nth-child(3)').text().replace(/\D/g, ''));
+                const price = parseInt($row.find('td:nth-child(5)').text().replace(/\D/g, ''));
                 const newLineTotal = quantity * price;
-                $row.find('td:nth-child(5)').text(newLineTotal.toLocaleString('vi-VN') + ' đ');
+                $row.find('td:nth-child(7)').text(newLineTotal.toLocaleString('vi-VN') + ' đ');
 
                 updateTotalPrice();
             });
@@ -33,16 +33,16 @@
             $('.decrease').on('click', function (e) {
                 e.preventDefault();
                 const $row = $(this).closest('tr');
-                const $input = $row.find('input');
+                const $input = $row.find('input[name="quantity"]');
                 let quantity = parseInt($input.val());
 
                 if (quantity > 1) {
                     quantity--;
                     $input.val(quantity);
 
-                    const price = parseInt($row.find('td:nth-child(3)').text().replace(/\D/g, ''));
+                    const price = parseInt($row.find('td:nth-child(5)').text().replace(/\D/g, ''));
                     const newLineTotal = quantity * price;
-                    $row.find('td:nth-child(5)').text(newLineTotal.toLocaleString('vi-VN') + ' đ');
+                    $row.find('td:nth-child(7)').text(newLineTotal.toLocaleString('vi-VN') + ' đ');
 
                     updateTotalPrice();
                 }

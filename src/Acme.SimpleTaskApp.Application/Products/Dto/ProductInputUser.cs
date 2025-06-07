@@ -26,7 +26,7 @@ namespace Acme.SimpleTaskApp.Products.Dto
 
         public ProductInputUser()
         {
-            MaxResultCount = 12;
+            MaxResultCount = 15;
         }
     }
 }

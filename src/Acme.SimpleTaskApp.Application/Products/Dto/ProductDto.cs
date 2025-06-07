@@ -6,9 +6,9 @@ using System;
 namespace Acme.SimpleTaskApp.Products.Dto
 {
     [AutoMapFrom(typeof(Product))]
-    public class ProductDto : EntityDto<Guid>
+    public class ProductDto : EntityDto<int>
     {
-        //public Guid Id { get; set; }
+     
         public string Name { get; set; }
 
         public string Description { get; set; }
@@ -17,13 +17,13 @@ namespace Acme.SimpleTaskApp.Products.Dto
 
         public decimal Price { get; set; }
 
-        public int StockQuantity { get; set; }
-
         public string CategoryId { get; set; }
 
         public string CategoryName { get; set; }
 
         public DateTime CreationTime { get; set; }
+
+        public int StockQuantity { get; set; }
 
     }
 }

@@ -1,0 +1,31 @@
+﻿<!-- Modal Update Product -->
+@using Abp.Authorization.Users
+@using Acme.SimpleTaskApp.Web.Models.Common.Modals
+@using Acme.SimpleTaskApp.Web.Models.Stocks
+@using System.Globalization
+@model EditStockViewModel
+
+@{
+    Layout = null;
+}
+@await Html.PartialAsync("~/Views/Shared/Modals/_ModalHeader.cshtml", new ModalHeaderViewModel(L("EditStock")))
+<form name="ProductEditForm" role="form" class="form-horizontal" enctype="multipart/form-data" method="">
+    <input type="hidden" name="Id" value="@Model.Stock.Id" />
+    <div class="modal-body">
+
+        <div class="tab-content mt-4 ">
+            <div role="tabpanel" class="tab-pane container active" id="edit-stock-details">
+                <div class="form-group row required">
+                    <label class="col-md-3 col-form-label" for="stockQuantity">@L("StockQuantity")</label>
+                    <div class="col-md-9">
+                        <input id="stockQuantity" type="text" class="form-control" name="StockQuantity" value="@Model.Stock.StockQuantity" required>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    @await Html.PartialAsync("~/Views/Shared/Modals/_ModalFooterWithSaveAndCancel.cshtml")
+</form>
+
+<script src="~/view-resources/Views/Stocks/_EditModal.js" asp-append-version="true"></script>

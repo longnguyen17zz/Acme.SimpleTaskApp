@@ -5,11 +5,12 @@ using Abp.Domain.Entities;
 using Abp.Domain.Entities.Auditing;
 using Abp.Timing;
 using Acme.SimpleTaskApp.Entities.Categories;
+using Acme.SimpleTaskApp.Entities.Stocks;
 
 namespace Acme.SimpleTaskApp.Entities.Products
 {
     [Table("AppProducts")]
-    public class Product : Entity<Guid>, IHasCreationTime
+    public class Product : AuditedEntity<int>, IHasCreationTime
     {
         public const int MaxNameLength = 256;
         public const int MaxDescriptionLength = 64 * 1024; //64KB
@@ -24,11 +25,10 @@ namespace Acme.SimpleTaskApp.Entities.Products
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
-
-        public int StockQuantity { get; set; }
         public string CategoryId { get; set; }
 
         public Category Category { get; set; }
+        public Stock Stock { get; set; }
         public DateTime CreationTime { get; set; }
 
         public Product()
@@ -36,14 +36,14 @@ namespace Acme.SimpleTaskApp.Entities.Products
             CreationTime = Clock.Now;
         }
 
-        public Product(string name, string description, string image, decimal price, int stockQuantity, string categoryId)
+        public Product(string name, string description, string image, decimal price, string categoryId)
             : this()
         {
             Name = name;
             Description = description;
             Images = image;
             Price = price;
-            StockQuantity = stockQuantity;
+            //StockQuantity = stockQuantity;
             CategoryId = categoryId;
         }
     }

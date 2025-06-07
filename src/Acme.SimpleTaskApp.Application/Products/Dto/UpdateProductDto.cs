@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Acme.SimpleTaskApp.Products.Dto
 {
     [AutoMapFrom(typeof(Product))]
-    public class UpdateProductDto : EntityDto<Guid>
+    public class UpdateProductDto : EntityDto<int>
     {
         //public Guid Id { get; set; }
 
@@ -21,7 +21,6 @@ namespace Acme.SimpleTaskApp.Products.Dto
         public string Description { get; set; }
         public IFormFile Images { get; set; }
         public decimal Price { get; set; }
-        public int StockQuantity { get; set; }
 
         public string CategoryId { get; set; }
 

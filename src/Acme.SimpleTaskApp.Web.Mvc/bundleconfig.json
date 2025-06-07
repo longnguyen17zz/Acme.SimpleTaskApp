@@ -22,5 +22,17 @@
     "inputFiles": [
       "wwwroot/view-resources/Views/Products/Index.js"
     ]
+  },
+  {
+    "outputFileName": "wwwroot/view-resources/Views/Orders/Index.min.js",
+    "inputFiles": [
+      "wwwroot/view-resources/Views/Orders/Index.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/view-resources/Views/Stocks/Index.min.js",
+    "inputFiles": [
+      "wwwroot/view-resources/Views/Stocks/Index.js"
+    ]
   }
 ]

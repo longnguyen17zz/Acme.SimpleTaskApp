@@ -32,11 +32,10 @@
         <img style="width:100%;" src="~/img/ImageProducts/thang_03_thu_cu_doi_moi_banner_00aaff.webp" />
     </div>
     <div class="wrapper">
-        <div style="position:sticky;top: 0; z-index: 1000; background-color: #dc3545; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);"> @await Html.PartialAsync("_Header.cshtml")</div>
+        <div style="position:sticky;top: 0; z-index: 1000; background: white; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);"> @await Html.PartialAsync("_Header.cshtml")</div>
        
-        @* @await Html.PartialAsync("_SideBar.cshtml") *@
-        <div class="content-wrapper" style="margin-left: 0; padding-top:10px;">
-            @* @await Html.PartialAsync("_Alerts.cshtml") *@
+        <div class="content-wrapper bg-light" style="margin-left: 0;">
+            @* @await Html.PartialAsync("_Alerts.cshtml")  *@
             @RenderBody()
         </div>
         @await Html.PartialAsync("_Footer.cshtml")
@@ -47,5 +46,7 @@
     @WebResourceManager.RenderScripts()
 </body>
 </html>
+
+
 
 

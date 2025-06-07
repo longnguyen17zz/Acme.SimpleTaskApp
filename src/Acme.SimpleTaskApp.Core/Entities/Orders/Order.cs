@@ -9,7 +9,7 @@ namespace Acme.SimpleTaskApp.Entities.Orders
 {
     [Table("AppOrders")]
 
-    public class Order : FullAuditedEntity<Guid>
+    public class Order : FullAuditedEntity<int>
     {
         public long UserId { get; set; }
 

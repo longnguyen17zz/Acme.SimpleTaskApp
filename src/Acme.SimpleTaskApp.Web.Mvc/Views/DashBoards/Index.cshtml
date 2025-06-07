@@ -1,0 +1,183 @@
+﻿@using Acme.SimpleTaskApp.Web.Models.Dashboards
+@model List<TopSellingProductViewModel>
+
+@section Styles {
+    <link href="~/css/DashBoard/style.css" rel="stylesheet" />
+}
+
+<div class="container-fluid">
+    <h1 class="m-0 text-dark" style="font-size: 1.8rem;padding: 15px .5rem;">Thống kê tổng quan</h1>
+
+    <!-- Tổng quan -->
+    <div class="row">
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box">
+                <span class="info-box-icon bg-info elevation-1">
+                    <i class="fas fa-money-bill-wave fa-fw mr-1"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Doanh thu</span>
+                    <span class="info-box-number" id="totalRevenue">
+                        ...
+                    </span>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+        </div>
+        <!-- /.col -->
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box mb-3">
+                <span class="info-box-icon bg-danger elevation-1">
+                    <i class="fas fa-thumbs-up"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Likes</span>
+                    <span class="info-box-number">41,410</span>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+        </div>
+        <!-- /.col -->
+        <!-- fix for small devices only -->
+        <div class="clearfix hidden-md-up"></div>
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box mb-3">
+                <span class="info-box-icon bg-success elevation-1">
+                    <i class="fas fa-shopping-cart"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Tổng đơn hàng</span>
+                    <span class="info-box-number" id="totalOrders">...</span>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+        </div>
+        <!-- /.col -->
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box mb-3">
+                <span class="info-box-icon bg-warning elevation-1">
+                    <i class="fas fa-users"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Tổng khách hàng</span>
+                    <span class="info-box-number" id="totalCustomers">2,000</span>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+        </div>
+        <!-- /.col -->
+    </div>
+    <!-- Biểu đồ -->
+    <div class="" style="background: white; padding: 20px; border-radius: 8px;box-shadow: 0 0 1px rgba(0, 0, 0, .125), 0 1px 3px rgba(0, 0, 0, .2);margin-bottom:15px;">
+        <div class="row text-center">
+            <div class="col-md-4 ml-5">
+                <h5>Doanh thu theo tháng</h5>
+            </div>
+            <div class="col-md-4">
+                <h5>Số đơn hàng theo tháng</h5>
+            </div>
+            <div class="col-md-3">
+                <h5>Trạng thái đơn hàng</h5>
+            </div>
+        </div>
+        <div class="row align-items-center">
+            <div class="col-md-4 ml-5 mr-3"  style=" height: 280px;border-radius: 10px;background-color: aliceblue;padding: 10px;box-shadow: 0 0 1px rgba(0, 0, 0, .125), 0 1px 3px rgba(0, 0, 0, .2);">
+                <canvas style="width: 100% !important;height: 100% !important;object-fit: contain;" id="revenueChart"></canvas>
+            </div>
+            <div class="col-md-4 mr-3" style=" height: 280px;border-radius: 10px;background-color: aliceblue;padding: 10px;box-shadow: 0 0 1px rgba(0, 0, 0, .125), 0 1px 3px rgba(0, 0, 0, .2);">
+                <canvas style="width: 100% !important;height: 100% !important;object-fit: contain;" id="orderChart"></canvas>
+            </div>
+            <div class="col-md-3 d-flex justify-content-center align-items-center" style=" height: 280px;border-radius: 10px;background-color: aliceblue;padding: 10px;box-shadow: 0 0 1px rgba(0, 0, 0, .125), 0 1px 3px rgba(0, 0, 0, .2);">
+                <canvas style="width: 100% !important;height: 100% !important;object-fit: contain;" id="orderStatusChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+    <!--Sản phẩm bán chạy-->
+   <div class="row">
+        <div class="bg-white p-4 col-md-8" style="box-shadow: 0 0 1px rgba(0, 0, 0, .125), 0 1px 3px rgba(0, 0, 0, .2); border-radius: 10px;margin-bottom:15px;max-width: 66%;margin-left: 8px;">
+            <h2 class="h5 font-weight-bold text-dark mb-4">Sản phẩm bán chạy</h2>
+            <div class="list-group list-group-flush">
+                @foreach (var item in Model)
+                {
+                    <div class="list-group-item d-flex align-items-center">
+                        <img src="@item.Image" alt="Product" class="rounded mr-3" style="width: 48px; height: 48px;">
+                        <div class="flex-fill">
+                            <div class="font-weight-bold text-dark ">@item.Name</div>
+                            <div class="text-muted small">@item.CategoryName</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-dark font-weight-bold ">@item.Price.ToString("N0") đ</div>
+                            <div class="text-muted small">Đã bán: @item.TotalSold</div>
+                        </div>
+                    </div>
+                }
+
+            </div>
+            <button class="btn btn-outline-primary btn-sm btn-block mt-3">
+                Xem tất cả sản phẩm
+            </button>
+        </div>
+        <div class="col-md-4">
+            <!-- Info Boxes Style 2 -->
+            <div class="info-box mb-3 bg-warning">
+                <span class="info-box-icon">
+                    <i class="fas fa-tag"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Inventory</span>
+                    <span class="info-box-number">5,200</span>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+            <div class="info-box mb-3 bg-success">
+                <span class="info-box-icon">
+                    <i class="fas fa-heart"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Mentions</span>
+                    <span class="info-box-number">92,050</span>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+            <div class="info-box mb-3 bg-danger">
+                <span class="info-box-icon">
+                    <i class="fas fa-cloud-download-alt"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Downloads</span>
+                    <span class="info-box-number">114,381</span>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+            <div class="info-box mb-3 bg-info">
+                <span class="info-box-icon">
+                    <i class="fas fa-comment"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Direct Messages</span>
+                    <span class="info-box-number">163,921</span>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+        </div>
+
+   </div>
+   
+</div>
+
+
+@section Scripts {
+    <script src="~/view-resources/Views/_Bundles/home-index.min.js" asp-append-version="true"></script>
+    <script src="~/view-resources/Views/DashBoards/Index.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+   
+}

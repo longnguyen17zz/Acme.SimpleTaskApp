@@ -380,12 +380,12 @@ public class AccountController : SimpleTaskAppControllerBase
 
     public ActionResult RedirectToAppHome()
     {
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("Index", "DashBoards");
     }
 
     public string GetAppHomeUrl()
     {
-        return Url.Action("Index", "About");
+        return Url.Action("Index", "DashBoards");
     }
 
     #endregion

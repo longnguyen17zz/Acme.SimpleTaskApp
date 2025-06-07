@@ -10,6 +10,10 @@ using System.Linq;
 using Acme.SimpleTaskApp.Orders.Dto;
 using Acme.SimpleTaskApp.CartItems.Dto;
 using System.Collections.Generic;
+using Acme.SimpleTaskApp.Entities.CartItems;
+using NUglify.Helpers;
+using Acme.SimpleTaskApp.Carts.Dto;
+using Acme.SimpleTaskApp.Products;
 
 namespace Acme.SimpleTaskApp.Web.Controllers
 {
@@ -18,54 +22,108 @@ namespace Acme.SimpleTaskApp.Web.Controllers
         private readonly UserManager _userManager;
         public readonly IOrderAppService _orderAppService;
         public readonly ICartItemAppService _cartItemAppService;
+        public readonly IProductAppService _productAppService;
 
-        public CheckoutsController(UserManager userManager, IOrderAppService orderAppService, ICartItemAppService cartItemAppService)
+
+        public CheckoutsController(UserManager userManager, IOrderAppService orderAppService, ICartItemAppService cartItemAppService, IProductAppService productAppService)
         {
             _userManager = userManager;
              _orderAppService = orderAppService;
             _cartItemAppService = cartItemAppService;
+            _productAppService = productAppService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(List<int> cartItemId, List<int> quantity, int? productId, int? buyNowQuantity)
         {
-            var userId = AbpSession.UserId;
-
-            var cartItemsResult = await _cartItemAppService.GetAll();
-            var cartItems = cartItemsResult.Items.ToList();
-            var totalAmount = cartItems.Sum(x => x.Price * x.Quantity);
-
-            var shippingInfo = new ShippingInfoDto
+            if (productId.HasValue && buyNowQuantity.HasValue)
             {
-                FullName = "", // sau có thể lấy từ user
+                // Người dùng bấm "Mua ngay"
+                var product = await _productAppService.GetByIdProduct(productId.Value); // Lấy thông tin sản phẩm
+
+                if (product == null)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+
+                var cartItems = new List<CartItemDto>
+                {
+                    new CartItemDto
+                    {
+                        ProductId = productId.Value,
+                        Quantity = buyNowQuantity.Value,
+                        Price = product.Price,
+                        ProductName = product.Name,
+                        Images = product.Images
+                    }
+                };
+
+                var shippingInfo = new ShippingInfoDto
+                {
+                    FullName = "", // Có thể lấy từ user
+                    Address = "",
+                    PhoneNumber = "",
+                    PaymentMethod = "COD",
+                };
+
+                var model = new CheckoutViewModel
+                {
+                    CartItems = cartItems,
+                    ShippingInfo = shippingInfo,
+                    IsBuyNow = false,
+                };
+
+                return View(model); // Hiển thị sản phẩm mua ngay
+            }
+
+            // Nếu không phải "Mua ngay", thì xử lý giỏ hàng như bình thường
+            for (int i = 0; i < cartItemId.Count; i++)
+            {
+                await _cartItemAppService.UpdateQuantityAsync(cartItemId[i], quantity[i]);
+            }
+            var cartItemsResult = await _cartItemAppService.GetAll();
+            var newcartItems = cartItemsResult.Items.ToList();
+            var shippingInfoDefault = new ShippingInfoDto
+            {
+                FullName = "", // có thể lấy từ user
                 Address = "",
                 PhoneNumber = "",
                 PaymentMethod = "COD",
-                TotalAmount = totalAmount
             };
-            var model = new CheckoutViewModel
+            var defaultModel = new CheckoutViewModel
             {
-                CartItems = cartItems,
-                ShippingInfo = shippingInfo
+                CartItems = newcartItems,
+                ShippingInfo = shippingInfoDefault
             };
 
-            return View(model);
+            return View(defaultModel);
         }
 
+        public async Task<IActionResult> BuyNow(int productId, int buyNowQuantity, decimal? FlashSalePrice)
+        {
+            var product = await _productAppService.GetByIdProduct(productId);
+            if (product == null)
+            {
+                return RedirectToAction("Index", "Home");  // Sản phẩm không tồn tại
+            }
+            var discountPrice = product.Price - FlashSalePrice;
+            var finalPrice = discountPrice ?? product.Price;
 
-        //[HttpPost]
-        //public async Task<IActionResult> Index(List<CartItemInputDto> cartItems)
-        //{
-        //    foreach (var item in cartItems)
-        //    {
-        //        await _cartItemAppService.UpdateQuantityAsync(item.CartItemId, item.Quantity);
-        //    }
+            // Tạo CheckoutViewModel cho việc thanh toán "Mua ngay"
+            var model = new CheckoutViewModel
+            {
+                ProductName = product.Name,
+                Images = product.Images,  // Đảm bảo bạn có trường Image trong sản phẩm
+                Price = finalPrice,
+                Quantity = buyNowQuantity,
+                ProductId= product.Id,
+                IsBuyNow = true,
+                ShippingInfo = new ShippingInfoDto()  // Thông tin giao hàng ban đầu trống
+            };
 
-        //    return RedirectToAction("Index"); // Tải lại trang thanh toán với số lượng mới
-        //}
-
-
+            return View("Index", model);  
+        } 
         [HttpPost]
-        public async Task<IActionResult> Checkout(string shippingName, string shippingAddress, string shippingPhone)
+        public async Task<IActionResult> Checkout(string shippingName, string shippingAddress, string ward, string district, string province, string shippingPhone, int? productId, int? buyNowQuantity)
         {
             var user = await _userManager.GetUserByIdAsync(AbpSession.UserId.Value);
             if (user == null)
@@ -73,10 +131,22 @@ namespace Acme.SimpleTaskApp.Web.Controllers
                 throw new Exception("Người dùng không tồn tại.");
             }
             var userId = user.Id;
-            // Cập nhật số lượng sản phẩm trong 
-            await _orderAppService.CreateOrderFromCartAsync(userId, shippingName, shippingAddress, shippingPhone);
+            int orderId;
 
-            return RedirectToAction("OrderSuccess", "Orders");
+            if (productId.HasValue && buyNowQuantity.HasValue)
+            {
+                // Mua ngay
+                orderId = await _orderAppService.CreateOrderDirectAsync(userId, productId.Value, buyNowQuantity.Value, shippingName, shippingAddress, ward, district, province, shippingPhone);
+            }
+            else
+            {
+                // Giỏ hàng
+                orderId = await _orderAppService.CreateOrderFromCartAsync(userId, shippingName, shippingAddress, ward, district, province, shippingPhone);
+            }
+
+            return RedirectToAction("OrderSuccess", "Orders", new { id = orderId });
         }
+
+
     }
 }

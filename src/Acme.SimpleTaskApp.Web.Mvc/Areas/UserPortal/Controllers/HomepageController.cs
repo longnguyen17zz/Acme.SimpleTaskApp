@@ -27,9 +27,9 @@ namespace Acme.SimpleTaskApp.Web.Areas.UserPortal.Controllers
             return View(model);
         }
 
-        public async Task<ActionResult> Detail(Guid id)
+        public async Task<ActionResult> Detail(int id)
         {
-            var product = await _productAppService.GetByIdAsync(new EntityDto<Guid>(id));
+            var product = await _productAppService.GetByIdAsync(new EntityDto<int>(id));
             return View(product);
         }
     }

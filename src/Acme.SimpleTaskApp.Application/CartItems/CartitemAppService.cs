@@ -1,6 +1,6 @@
 ﻿using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
-
+using Abp.UI;
 using Acme.SimpleTaskApp.CartItems.Dto;
 using Acme.SimpleTaskApp.Carts.Dto;
 using Acme.SimpleTaskApp.Entities.CartItems;
@@ -15,11 +15,11 @@ namespace Acme.SimpleTaskApp.Carts
 {
     public class CartItemAppService : SimpleTaskAppAppServiceBase, ICartItemAppService
     {
-        private readonly IRepository<CartItem, Guid> _cartItemRepository;
-        private readonly IRepository<Cart, Guid> _cartRepository;
-        private readonly IRepository<Product, Guid> _productRepository;
+        private readonly IRepository<CartItem> _cartItemRepository;
+        private readonly IRepository<Cart> _cartRepository;
+        private readonly IRepository<Product> _productRepository;
 
-        public CartItemAppService(IRepository<CartItem, Guid> cartItemRepository, IRepository<Cart, Guid> cartRepository, IRepository<Product, Guid> productRepository)
+        public CartItemAppService(IRepository<CartItem> cartItemRepository, IRepository<Cart> cartRepository, IRepository<Product> productRepository)
         {
             _cartItemRepository = cartItemRepository;
             _cartRepository = cartRepository;
@@ -65,6 +65,9 @@ namespace Acme.SimpleTaskApp.Carts
             }
             var product = await _productRepository.GetAsync(input.ProductId);
 
+            var discountFlash = product.Price - input.FlashSalePrice;
+            var finalPrice = discountFlash ?? product.Price;
+
             var existingItem = _cartItemRepository
                 .GetAll()
                 .FirstOrDefault(x => x.CartId == cart.Id && x.ProductName == product.Name);
@@ -82,13 +85,13 @@ namespace Acme.SimpleTaskApp.Carts
                     ProductId = input.ProductId,
                     ProductName = product.Name,
                     Quantity = input.Quantity,
-                    Price = product.Price
+                    Price = finalPrice
                 };
 
                 await _cartItemRepository.InsertAsync(cartItem);
             }
         }
-        public async Task DeleteAsync(Guid cartItemId)
+        public async Task DeleteAsync(int cartItemId)
         {
             await _cartItemRepository.DeleteAsync(cartItemId);
         }
@@ -104,44 +107,27 @@ namespace Acme.SimpleTaskApp.Carts
         }
 
 
-        //public async Task UpdateQuantityAsync(Guid cartItemId, int quantity)
-        //{
-        //    var cartItem = await _cartItemRepository.GetAsync(cartItemId);
-        //    if (cartItem == null)
-        //    {
-        //        throw new UserFriendlyException("Sản phẩm trong giỏ hàng không tồn tại.");
-        //    }
+        public async Task UpdateQuantityAsync(int cartItemId, int quantity)
+        {
+            var cartItem = await _cartItemRepository.GetAsync(cartItemId);
+            if (cartItem == null)
+            {
+                throw new UserFriendlyException("Sản phẩm trong giỏ hàng không tồn tại.");
+            }
 
-        //    cartItem.Quantity = quantity;
-        //    await _cartItemRepository.UpdateAsync(cartItem);
-        //}
+            cartItem.Quantity = quantity;
+            await _cartItemRepository.UpdateAsync(cartItem);
+        }
 
-        //public async Task UpdateStock()
-        //{
-        //    var userId = AbpSession.UserId;
+        public void DeleteItem(int cartItemId)
+        {
+            var cartItem = _cartItemRepository.FirstOrDefault(cartItemId);
+            if (cartItem == null)
+            {
+                throw new UserFriendlyException("Không tìm thấy sản phẩm trong giỏ hàng.");
+            }
 
-        //    // Lấy giỏ hàng
-        //    var cartItems = await _cartItemRepository.GetAllListAsync(c => c.Cart.UserId == userId);
-
-        //    // Kiểm tra số lượng trong kho và cập nhật
-        //    foreach (var item in cartItems)
-        //    {
-        //        var product = await _productRepository.FirstOrDefaultAsync(p => p.Id == item.ProductId);
-        //        if (product == null)
-        //        {
-        //            throw new Exception("Sản phẩm không tồn tại.");
-        //        }
-
-        //        if (product.StockQuantity < item.Quantity)
-        //        {
-        //            throw new Exception("Số lượng sản phẩm trong kho không đủ.");
-        //        }
-
-        //        // Giảm số lượng sản phẩm trong kho
-        //        product.StockQuantity -= item.Quantity;
-        //        await _productRepository.UpdateAsync(product);
-
-        //    }
-        //}
+            _cartItemRepository.Delete(cartItem);
+        }
     }
 }

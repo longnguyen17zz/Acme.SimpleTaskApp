@@ -1,0 +1,160 @@
+﻿@using Abp.Authorization
+@inject IPermissionChecker PermissionChecker
+@using Acme.SimpleTaskApp.Web.Models.FlashSales 
+@model FlashSaleListViewModel 
+@using Acme.SimpleTaskApp.Web.Startup
+@{
+    ViewBag.Title = L("FlashSale");
+    ViewBag.CurrentPageName = PageNames.FlashSales;
+}
+@section scripts
+{
+    <environment names="Development">
+        <script src="~/view-resources/Views/FlashSales/Index.js" asp-append-version="true"></script>
+    </environment>
+    <environment names="Staging,Production">
+        <script src="~/view-resources/Views/FlashSales/Index.min.js" asp-append-version="true"></script>
+    </environment>
+}
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <h1>@L("FlashSales")</h1>
+            </div>
+            <div class="col-sm-6"> 
+                    <a href="javascript:;" data-toggle="modal" data-target="#FlashSaleCreateModal" class="btn bg-blue float-sm-right"> 
+                         <i class="fa fa-plus-square"></i> 
+                         @L("Create") 
+                     </a> 
+             </div> 
+        </div>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        @await Html.PartialAsync("~/Views/FlashSales/Index.AdvancedSearch.cshtml")
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="FlashSalesTable" class="table table-striped table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th scope="col" class="text-center">@L("Name")</th>
+                                        <th scope="col" class="text-center">@L("StartTime")</th>
+                                        <th scope="col" class="text-center">@L("EndTime")</th>
+                                        <th scope="col" class="text-center">@L("Status")</th>
+                                        <th style="width: 150px" scope="col" class="text-center">@L("Actions")</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@await Html.PartialAsync("~/Views/FlashSales/_CreateFlashSaleModal.cshtml", Model)
+
+<div class="modal fade" id="FlashSaleEditModal" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content"></div>
+    </div>
+</div>
+
+
+<!-- Modal Apply FlashSale-->
+<div class="modal fade" id="applyForModal" tabindex="-1" role="dialog" aria-labelledby="applyForModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form id="applyForForm" method="post" asp-action="ApplyFor" asp-controller="FlashSales">
+            <!-- Form bắt đầu ở đây -->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Áp dụng cho Flash Sale: <span id="flashSaleName"></span></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="FlashSaleId" id="flashSaleId" value="" />
+
+                    <div class="form-group">
+                        <label>Danh mục</label>
+                        <select class="form-control" name="CategoryId" id="categorySelect"></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Sản phẩm</label>
+                        <select class="form-control" name="ProductId" id="productSelect"></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Giá gốc</label>
+                        <input type="text" class="form-control" name="OriginalPrice" id="priceProduct" readonly />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Giá Flash Sale</label>
+                        <input type="text" class="form-control" name="FlashPrice" id="flashPrice" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Số lượng</label>
+                        <input type="text" class="form-control" name="Quantity" id="quantity" required min="1" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Áp dụng</button> <!-- Nút submit form -->
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </form> <!-- Form kết thúc -->
+    </div>
+</div>
+
+<!--Modal View Detail FlashSale-->
+
+<div class="modal fade" id="ViewFlashSaleItemsModal" tabindex="-1" role="dialog" aria-labelledby="ViewFlashSaleItemsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chi tiết Flash Sale: <span id="viewFlashSaleName"></span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered table-striped" id="FlashSaleItemsTable">
+                    <thead>
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th>Giá gốc</th>
+                            <th>Giá Flash Sale</th>
+                            <th>Số lượng</th>
+                            <th>Đã bán</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Dữ liệu load ajax vào đây -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+

@@ -13,23 +13,33 @@ public class SimpleTaskAppNavigationProvider : NavigationProvider
     public override void SetNavigation(INavigationProviderContext context)
     {
         context.Manager.MainMenu
+            //.AddItem(
+            //    new MenuItemDefinition(
+            //        PageNames.About,
+            //        L("About"),
+            //        url: "About",
+            //        icon: "fas fa-info-circle"
+            //    )
+            //)
             .AddItem(
                 new MenuItemDefinition(
-                    PageNames.About,
-                    L("About"),
-                    url: "About",
-                    icon: "fas fa-info-circle"
-                )
+                    "DashBoards",
+                    L("DashBoards"),
+                    url: "DashBoards",
+                    icon: "fas fa-home"
+                    )
             )
+            
+            //.AddItem(
+            //    new MenuItemDefinition(
+            //        PageNames.Home,
+            //        L("HomePage"),
+            //        url: "",
+            //        icon: "fas fa-home",
+            //        requiresAuthentication: true
+            //    )
+            //)
             .AddItem(
-                new MenuItemDefinition(
-                    PageNames.Home,
-                    L("HomePage"),
-                    url: "",
-                    icon: "fas fa-home",
-                    requiresAuthentication: true
-                )
-            ).AddItem(
                 new MenuItemDefinition(
                     PageNames.Tenants,
                     L("Tenants"),
@@ -143,6 +153,14 @@ public class SimpleTaskAppNavigationProvider : NavigationProvider
                     url: "Tasks",
                     icon: "fa fa-tasks"
                     )
+            )
+            .AddItem(
+                new MenuItemDefinition(
+                    "CategoryList",
+                    L("Categories"),
+                    url: "Categories",
+                    icon: "fas fa-list-alt"
+                    )
             ).AddItem(
                 new MenuItemDefinition(
                     "ProductList",
@@ -150,16 +168,32 @@ public class SimpleTaskAppNavigationProvider : NavigationProvider
                     url: "Products",
                     icon: "fas fa-vest"
                     )
+            )
+            .AddItem(
+                new MenuItemDefinition(
+                    "Stocks",
+                    L("Stocks"),
+                    url: "Stocks",
+                    icon: "fas fa-warehouse"
+                    )
             ).AddItem(
                 new MenuItemDefinition(
-                    "CategoryList",
-                    L("Categories"),
-                    url: "Categories",
-                    icon: "fas fa-vest"
+                    "OrderList",
+                    L("Orders"),
+                    url: "Orders",
+                    icon: "fas fa-file-invoice"
+                    )
+            )
+            .AddItem(
+                new MenuItemDefinition(
+                    "FlashSaleList",
+                    L("FlashSales"),
+                    url: "FlashSales",
+                    icon: "fas fa-tags"
                     )
             );
     }
-
+  
     private static ILocalizableString L(string name)
     {
         return new LocalizableString(name, SimpleTaskAppConsts.LocalizationSourceName);

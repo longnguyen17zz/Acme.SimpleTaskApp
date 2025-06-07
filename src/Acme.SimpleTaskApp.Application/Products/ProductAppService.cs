@@ -5,10 +5,12 @@ using Abp.Linq.Extensions;
 using Abp.Timing;
 using Abp.UI;
 using Acme.SimpleTaskApp.Entities.Products;
+using Acme.SimpleTaskApp.Entities.Stocks;
 using Acme.SimpleTaskApp.Products.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -21,17 +23,22 @@ namespace Acme.SimpleTaskApp.Products
     //[AbpAuthorize]
     public class ProductAppService :  SimpleTaskAppAppServiceBase, IProductAppService
     {
-        private readonly IRepository<Product,Guid> _productRepository;
+        private readonly IRepository<Product> _productRepository;
+        private readonly IRepository<Stock> _stockRepository;
 
-        public ProductAppService(IRepository<Product, Guid> productRepository)
+
+
+        public ProductAppService(IRepository<Product> productRepository, IRepository<Stock> stockRepository)
         {
             _productRepository = productRepository;
+            _stockRepository = stockRepository;
         }
 
         public async Task<ListResultDto<ProductDto>> GetAll()
         {
             var products = await _productRepository
                 .GetAll()
+                .Include(p => p.Stock)
                 .ToListAsync();
 
             var result = products.Select(p => new ProductDto
@@ -41,12 +48,25 @@ namespace Acme.SimpleTaskApp.Products
                 Description = p.Description,
                 Price = p.Price,
                 Images = p.Images,
-                StockQuantity = p.StockQuantity,
+                StockQuantity = p.Stock.StockQuantity ?? 0,
                 CreationTime = p.CreationTime,
             }).ToList();
 
             return new ListResultDto<ProductDto>(result);
         }
+
+        public async Task<ListResultDto<ProductDto>> GetByCategoryIdAsync(string categoryId)
+        {
+            var filtered = await _productRepository.GetAllListAsync(p => p.CategoryId == categoryId);
+            var result = filtered.Select(p => new ProductDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Price = p.Price
+            }).ToList();
+            return new ListResultDto<ProductDto>(result);
+        }
+
         private string GetSharedImagePath()
         {
             return Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"..\Product\ProductImages"));
@@ -60,7 +80,6 @@ namespace Acme.SimpleTaskApp.Products
                 Name = input.Name,
                 Description = input.Description,
                 Price = input.Price,
-                StockQuantity = input.StockQuantity,
                 CategoryId = input.CategoryId,
                 CreationTime = Clock.Now
             };
@@ -78,11 +97,27 @@ namespace Acme.SimpleTaskApp.Products
                 // Đường dẫn dùng để hiển thị ảnh trong trình duyệt
                 product.Images = "/ProductImages/" + fileName;
             }
+            // Thêm sản phẩm trước để có ProductId
+            var createdProduct = await _productRepository.InsertAsync(product);
+            await CurrentUnitOfWork.SaveChangesAsync(); // Đảm bảo ProductId được tạo ra
 
-            await _productRepository.InsertAsync(product);
+            // Tạo stock tương ứng
+            var stock = new Stock
+            {
+                ProductId = createdProduct.Id,
+                StockQuantity = 0, // hoặc bạn có thể nhận từ input nếu có
+                CreationTime = Clock.Now
+            };
+
+            await _stockRepository.InsertAsync(stock);
         }
 
-        public async Task<ProductDto> GetByIdAsync(EntityDto<Guid> input)
+        public async Task<ProductDto> GetByIdProduct(int productId)
+        {
+            var product = await _productRepository.GetAsync(productId);
+            return ObjectMapper.Map<ProductDto>(product);
+        }
+        public async Task<ProductDto> GetByIdAsync(EntityDto<int> input)
         {
             var product = await _productRepository.GetAsync(input.Id);
             return ObjectMapper.Map<ProductDto>(product);
@@ -102,7 +137,6 @@ namespace Acme.SimpleTaskApp.Products
             product.Name = input.Name;
             product.Description = input.Description;
             product.Price = input.Price;
-            product.StockQuantity = input.StockQuantity;
             product.CategoryId = input.CategoryId;
 
             if (input.Images != null && input.Images.Length > 0)
@@ -133,7 +167,7 @@ namespace Acme.SimpleTaskApp.Products
             await _productRepository.UpdateAsync(product);
         }
         [AbpAuthorize("Pages.Products.Delete")]
-        public async Task DeleteAsync(EntityDto<Guid> input)
+        public async Task DeleteAsync(EntityDto<int> input)
         {
             await _productRepository.DeleteAsync(input.Id);
         }
@@ -143,7 +177,7 @@ namespace Acme.SimpleTaskApp.Products
             {
                 var query = _productRepository
                     .GetAll()
-                    .Include(p => p.Category)
+                    .Include(c => c.Category)
                     .AsQueryable(); 
 
                 if (!string.IsNullOrWhiteSpace(input.CategoryId))
@@ -179,7 +213,6 @@ namespace Acme.SimpleTaskApp.Products
                     Description = p.Description,
                     Price = p.Price,
                     Images = p.Images,
-                    StockQuantity = p.StockQuantity,
                     CreationTime = p.CreationTime,
                     CategoryName = p.Category != null ? p.Category.Name : "Không có danh mục"
                 }).ToList();
@@ -196,8 +229,10 @@ namespace Acme.SimpleTaskApp.Products
         {
             var query = _productRepository
                 .GetAll()
+                .Include(p => p.Stock)
                 .Include(p => p.Category)
-                .Where(p => p.StockQuantity > 0);
+                .AsQueryable()
+                .Where(p => p.Stock.StockQuantity > 0);
 
             if (!string.IsNullOrWhiteSpace(input.CategoryId))
             {
@@ -222,7 +257,7 @@ namespace Acme.SimpleTaskApp.Products
                 Description = p.Description,
                 Price = p.Price,
                 Images = p.Images,
-                StockQuantity = p.StockQuantity,
+                StockQuantity = p.Stock?.StockQuantity ?? 0,
                 CreationTime = p.CreationTime,
                 CategoryName = p.Category?.Name ?? "Không có danh mục"
             }).ToList();

@@ -34,9 +34,9 @@ public class ProductsController : SimpleTaskAppControllerBase
         return View();
     }
 
-    public async Task<ActionResult> EditModal(Guid productId)
+    public async Task<ActionResult> EditModal(int productId)
     {
-        var product = await _productAppService.GetByIdAsync(new EntityDto<Guid>(productId));
+        var product = await _productAppService.GetByIdAsync(new EntityDto<int>(productId));
         var categories = await _categoryAppService.GetAllAsync();
         var model = new EditProductViewModel
         {

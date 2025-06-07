@@ -151,6 +151,18 @@
 		<text name="AllTasks" value="Tất cả nhiệm vụ"/>
 		<text name="TaskState_Open" value="Đang thực hiện"/>
 		<text name="TaskState_Completed" value="Đã hoàn thành"/>
+		<text name="DashBoards" value="Quản lý thống kê"/>
+		<text name="Orders" value="Đơn hàng"/>
+		<text name="Stocks" value="Kho"/>
+		<text name="EditQuantity" value="Chỉnh số lượng"/>
+		<text name="PhoneNumber" value="Số điện thoại"/>
+		<text name="OrderDate" value="Ngày đặt hàng"/>
+		<text name="Status" value="Trạng thái"/>
+		<text name="PaymentMethod" value="Phương thức thanh toán"/>
+		<text name="TotalPrice" value="Tổng giá"/>
+		<text name="Address" value="Địa chỉ"/>
+		<text name="Confirm" value="Xác nhận"/>
+		<text name="EditStock" value="Chỉnh số lượng"/>
 
 	</texts>
 </localizationDictionary>

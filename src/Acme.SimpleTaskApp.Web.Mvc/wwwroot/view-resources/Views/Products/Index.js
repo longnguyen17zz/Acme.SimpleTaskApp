@@ -10,8 +10,8 @@
         paging: true,
         serverSide: true,
         processing: true,
-        pageLength: 5,
-        lengthMenu: [5, 10, 20, 50, 100], 
+        //pageLength: 5,
+        //lengthMenu: [5, 10, 20, 50, 100], 
         listAction: {
             ajaxFunction: _productService.getPaged,
             inputFilter: function () {
@@ -76,11 +76,6 @@
             },
             {
                 targets: 4,
-                data: 'stockQuantity',
-                className: 'text-center',
-            },
-            {
-                targets: 5,
                 data: 'categoryName',
                 orderable: false,
                 className: 'text-center',
@@ -89,7 +84,7 @@
                 }
             },
             {
-                targets: 6,
+                targets: 5,
                 data: 'images',
                 className: 'text-center',
                 render: function (data, type, row, meta) {
@@ -101,7 +96,7 @@
                 }
             },
             {
-                targets: 7,
+                targets: 6,
                 data: 'creationTime',
                 className: 'text-center',
                 render: function (data, type, row) {
@@ -112,39 +107,40 @@
                 }
             },
             {
-                targets: 8,
+                targets: 7,
                 data: null,
                 orderable: false,
                 autoWidth: false,
                 defaultContent: '',
                 className: 'text-center',
-                render: (data, type, row, meta) => {
-                    let buttons = [];
-                    if (abp.auth.isGranted('Pages.Products.Edit')) {
-                        buttons.push(
-                            `<button type="button" class="btn btn-sm bg-secondary edit-product" data-product-id="${row.id}" data-toggle="modal" data-target="#ProductEditModal">
-                                <i class="fas fa-pencil-alt"></i> ${l('Edit')}
-                             </button>`
-                        );
-                    }
-                    if (abp.auth.isGranted('Pages.Products.Delete')) {
-                        buttons.push(
-                            `<button type="button" class="btn btn-sm bg-danger delete-product" data-product-id="${row.id}" data-product-name="${row.name}">
-                                <i class="fas fa-trash"></i> ${l('Delete')}
-                             </button>`
-                        );
-                    }
-                    return buttons.join('&nbsp;');
+                render: (data, type, row, meta) => { // data: giá trị, type: kiểu xử lý , row là toàn bộ dữ liêu của hàng đó , meta là vị trị của ô đó  
+                    return `<div class="dropdown">
+                         <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="actionDropdown_${row.id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              ${l('Actions')}
+                         </button>
+                         <div class="dropdown-menu p-0" aria-labelledby="actionDropdown_${row.id}">
+                             <button type="button" class="dropdown-item text-secondary edit-product" data-product-id="${row.id}" data-toggle="modal" data-target="#ProductEditModal">
+                                 <i class="fas fa-edit mr-2"></i>  ${l('Edit')}
+                             </button>
+                             <div class="dropdown-divider m-0"></div>
+                             <button type="button" class="dropdown-item text-secondary view-product-detail" data-tour-id="${row.id}" data-tour-name="${row.name}">
+                                 <i class="fas fa-eye mr-2"></i>  ${l('Details')}
+                             </button>
+                             <div class="dropdown-divider m-0"></div>
+                             <button type="button" class="dropdown-item text-danger delete-product" data-product-id="${row.id}" data-product-name="${row.name}">
+                                 <i class="fas fa-trash-alt mr-2"></i>  ${l('Delete')}
+                             </button>
+                         </div>
+                     </div>`;
+
                 }
             }
 
         ]
     });
-
     console.log(_$productsTable);
     console.log(_$productsTable.context);
     console.log(_$productsTable.selector);
-
     _$form.validate({
         rules: {
             Name: {
@@ -162,11 +158,7 @@
                 localizedDecimal: true,
                 min: true
             },
-            StockQuantity: {
-                required: true,
-                number: true,
-                min: 0
-            }, 
+            
             CategoryId: {
                 required: true,
             }
@@ -184,11 +176,7 @@
                 localizedDecimal:"Giá phải là số hợp lệ ",
                 min: "Giá không được nhỏ hơn 0"
             },
-            StockQuantity: {
-                required: "Vui lòng nhập số lượng",
-                number: "Số lượng phải là số",
-                min: "Số lượng không được nhỏ hơn 0"
-            },
+            
               CategoryId: {
                 required: "Vui lòng chọn danh mục",
             }

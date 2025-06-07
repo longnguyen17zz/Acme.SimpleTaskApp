@@ -25,6 +25,9 @@ public class SideBarUserAreaViewModel
 
         return LoginInformations.Tenant == null
             ?  userName
-            : LoginInformations.Tenant.TenancyName + "\\" + userName;
+            :  "Xin chào! " + userName;
+
+        //: LoginInformations.Tenant.TenancyName + "\\" + userName;
+
     }
 }

@@ -13,12 +13,12 @@ namespace Acme.SimpleTaskApp.Web.Views.Shared.Components.CartItemCount
 {
     public class CartItemCountViewComponent : SimpleTaskAppViewComponent
     {
-        private readonly IRepository<CartItem, Guid> _cartItemRepository;
+        private readonly IRepository<CartItem> _cartItemRepository;
         private readonly IAbpSession _abpSession;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
 
         public CartItemCountViewComponent(
-            IRepository<CartItem, Guid> cartItemRepository,
+            IRepository<CartItem> cartItemRepository,
             IAbpSession abpSession,
             IUnitOfWorkManager unitOfWorkManager)
         {

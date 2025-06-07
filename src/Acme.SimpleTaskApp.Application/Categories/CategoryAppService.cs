@@ -17,10 +17,10 @@ namespace Acme.SimpleTaskApp.Categories
     public class CategoryAppService : SimpleTaskAppAppServiceBase, ICategoryAppService
     {
         private readonly IRepository<Category, string> _categoryRepository;
-        private readonly IRepository<Product, Guid> _productRepository;
+        private readonly IRepository<Product> _productRepository;
 
 
-        public CategoryAppService(IRepository<Category, string> categoryRepository, IRepository<Product, Guid> productRepository)
+        public CategoryAppService(IRepository<Category, string> categoryRepository, IRepository<Product> productRepository)
         {
             _categoryRepository = categoryRepository;
             _productRepository = productRepository;

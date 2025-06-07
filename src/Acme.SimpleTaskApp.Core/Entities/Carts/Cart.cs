@@ -13,7 +13,7 @@ namespace Acme.SimpleTaskApp.Entities.Carts
 {
     [Table("AppCarts")]
 
-    public class Cart : FullAuditedEntity<Guid>
+    public class Cart : FullAuditedEntity<int>
     {
 
         public long UserId { get; set; } // khóa ngoại    

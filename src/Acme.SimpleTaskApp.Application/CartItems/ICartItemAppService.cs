@@ -14,11 +14,13 @@ namespace Acme.SimpleTaskApp.Carts
 
         public Task CreateAsync(AddCartItemDto input);
 
-        public Task DeleteAsync(Guid cartItemId);
+        public Task DeleteAsync(int cartItemId);
 
         public Task<int> GetCartCount();
 
-        //public Task UpdateQuantityAsync(Guid cartItemId, int quantity);
+        public Task UpdateQuantityAsync(int cartItemId, int quantity);
+
+        void DeleteItem(int cartItemId);
 
     }
 }
