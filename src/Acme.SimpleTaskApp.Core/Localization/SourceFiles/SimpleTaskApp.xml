@@ -161,6 +161,11 @@
 	  <text name="Address" value="Address"/>
 	  <text name="Confirm" value="Confirm"/>
 	  <text name="EditStock" value="EditStock"/>
+		<text name="FlashSales" value="FlashSales"/>
+		<text name="StartTime" value="StartTime"/>
+		<text name="EndTime" value="EndTime"/>
+		<text name="CreateNewFlashSale" value="CreateNewFlashSale"/>
+		<text name="EditFlashSale" value="EditFlashSale"/>
 
-  </texts>
+	</texts>
 </localizationDictionary>

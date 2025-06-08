@@ -12,6 +12,7 @@
         <li class="nav-item">
             <a class="nav-link text-uppercase @(Model.CurrentCategoryId == category.Id ? "active font-weight-bold" : "")"
                href="javascript:void(0);"
+                @* href="@Url.Action("Index", new { categoryId = category.Id, categoryName = category.Name })" *@
                data-categoryid="@category.Id">
                 @category.Name
             </a>

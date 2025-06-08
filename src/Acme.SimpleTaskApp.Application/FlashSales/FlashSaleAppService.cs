@@ -101,8 +101,15 @@ namespace Acme.SimpleTaskApp.FlashSales
 			existing.Title = input.Name;
 			existing.StartTime = input.StartTime;
 			existing.EndTime = input.EndTime;
+			if(input.EndTime < Clock.Now)
+			{
+				if(input.IsActive == true)
+				{
+					throw new UserFriendlyException("Vui lòng cập nhật thời gian");
+				}
+				existing.IsActive = input.IsActive;
+			}
 			existing.IsActive = input.IsActive;
-
 			await _flashSaleRepository.UpdateAsync(existing);
 			CurrentUnitOfWork.SaveChanges();
 		}

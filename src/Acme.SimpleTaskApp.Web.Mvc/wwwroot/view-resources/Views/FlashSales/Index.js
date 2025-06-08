@@ -196,7 +196,35 @@
         );
     }
     // Modal apply
-    // Apply FlashSale
+  // Apply FlashSale
+  // Gắn 1 lần duy nhất khi trang load
+  $(document).ready(function () {
+    $('#categorySelect').on('change', function () {
+      var categoryId = $(this).val();
+      var $productSelect = $('#productSelect');
+      $productSelect.empty();
+
+      if (!categoryId) {
+        $productSelect.append('<option value="">-- Chọn sản phẩm --</option>');
+        return;
+      }
+
+      abp.services.app.product.getByCategoryId(categoryId).done(function (products) {
+        $productSelect.append('<option value="">-- Chọn sản phẩm --</option>');
+        $.each(products.items, function (i, item) {
+          $productSelect.append(`<option value="${item.id}">${item.name}</option>`);
+        });
+      });
+    });
+
+    $('#productSelect').on('change', function () {
+      var producId = $(this).val();
+      abp.services.app.product.getByIdProduct(producId).done(function (product) {
+        $("#priceProduct").val(product.price);
+      });
+    });
+  });
+
     $(document).on('click', '.apply-flashSale', function () {
         var flashSaleId = $(this).data('flashsale-id');
         var flashSaleName = $(this).data('flashsale-name');
@@ -215,32 +243,6 @@
             $catSelect.empty();
             $.each(categories.items, function (i, item) {
                 $catSelect.append(`<option value="${item.id}">${item.name}</option>`);
-            });
-        });
-        $('#categorySelect').on('change', function () {
-            var categoryId = $(this).val();
-            console.log(categoryId)
-            var $productSelect = $('#productSelect');
-            $productSelect.empty();
-
-            if (!categoryId) {
-                $productSelect.append('<option value="">-- Chọn sản phẩm --</option>');
-                return;
-            }
-            abp.services.app.product.getByCategoryId(categoryId).done(function (products) {
-                console.log(products.items)
-                $productSelect.append('<option value="">-- Chọn sản phẩm --</option>');
-                $.each(products.items, function (i, item) {
-                    $productSelect.append(`<option value="${item.id}">${item.name}</option>`);
-                   
-                });
-            });
-
-        });
-        $('#productSelect').on('change', function () {
-            var producId = $(this).val();
-            abp.services.app.product.getByIdProduct(producId).done(function (product) {
-                $("#priceProduct").val(product.price);
             });
         });
         // Hiện modal

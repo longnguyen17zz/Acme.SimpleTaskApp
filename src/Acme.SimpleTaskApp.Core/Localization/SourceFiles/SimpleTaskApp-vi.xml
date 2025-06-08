@@ -163,6 +163,10 @@
 		<text name="Address" value="Địa chỉ"/>
 		<text name="Confirm" value="Xác nhận"/>
 		<text name="EditStock" value="Chỉnh số lượng"/>
-
+		<text name="FlashSales" value="Flash sale"/>
+		<text name="StartTime" value="Thời gian diễn ra"/>
+		<text name="EndTime" value="Thời gian kết thúc"/>
+		<text name="CreateNewFlashSale" value="Tạo siêu ưu đãi"/>
+		<text name="EditFlashSale" value="Chỉnh sửa siêu ưu đãi"/>
 	</texts>
 </localizationDictionary>
