@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <VersionPrefix>1.0.0.0</VersionPrefix>
     <TargetFramework>net9.0</TargetFramework>
@@ -15,7 +15,6 @@
     <ProjectReference Include="..\Acme.SimpleTaskApp.Core\Acme.SimpleTaskApp.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Carts\Dto\" />
     <Folder Include="Lookups\Dto\" />
   </ItemGroup>
   <ItemGroup>

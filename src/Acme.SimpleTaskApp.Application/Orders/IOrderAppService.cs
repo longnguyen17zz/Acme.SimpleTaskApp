@@ -9,27 +9,25 @@ using System.Threading.Tasks;
 
 namespace Acme.SimpleTaskApp.Orders
 {
-    public interface IOrderAppService : IApplicationService
-    {
-        Task<int> CreateOrderFromCartAsync(long userId, string shippingName, string shippingAddress, string ward, string district, string province, string shippingPhone);
+	public interface IOrderAppService : IApplicationService
+	{
+		Task<int> CreateOrderFromCartAsync(long userId, string shippingName, string shippingAddress, string ward, string district, string province, string shippingPhone);
 
-        Task<int> CreateOrderDirectAsync(long userId, int productId,int quantity,string shippingName, string shippingAddress, string ward, string district, string province,  string shippingPhone);
-        Task<PagedResultDto<ShippingInfoDto>> GetPagedAsync(OrderInput input);
+		Task<int> CreateOrderDirectAsync(long userId, int productId, int quantity, string shippingName, string shippingAddress, string ward, string district, string province, string shippingPhone);
+		Task<PagedResultDto<ShippingInfoDto>> GetPagedAsync(OrderInput input);
 
-        Task<GetOrderDetailsOutput> GetOrderDetails(int orderId);
+		Task<GetOrderDetailsOutput> GetOrderDetails(int orderId);
 
-        Task<List<TopSellingProductDto>> GetTopSellingProductsAsync();
+		Task<List<TopSellingProductDto>> GetTopSellingProductsAsync();
 
-        Task<OrderDetailDto> GetOrderDetailAsync(int id);
+		Task<OrderDetailDto> GetAsync(EntityDto<int> input);
 
-        Task<OrderDetailDto> GetAsync(EntityDto<int> input);
+		Task<List<GetOrderDetailsOutput>> GetOrderListUser();
 
-        Task<List<GetOrderDetailsOutput>> GetOrderListUser();
+		Task<OrderDto> GetOrderDetail(int orderId);
 
-        Task<OrderDto> GetOrderDetail(int orderId);
+		Task ConfirmDelivery(ConfirmDeliveryInput input);
 
-        Task ConfirmDelivery(ConfirmDeliveryInput input);
-
-        Task<FileDto> ExportToExcel();
-    }
+		Task<FileDto> ExportToExcel();
+	}
 }

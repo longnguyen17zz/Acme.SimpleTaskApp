@@ -339,6 +339,12 @@
         _$productsTable.ajax.reload();
     })
 
+  $(".DeleteByDate").on('click', function () {
+    $("#FromDate").val('');
+    $("#ToDate").val('');
+
+  })
+
     
 
     var _categoryService = abp.services.app.category;

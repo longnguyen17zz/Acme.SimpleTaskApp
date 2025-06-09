@@ -66,7 +66,197 @@ namespace Acme.SimpleTaskApp.Orders
 			_userManager = userManager;
 			_orderExcelExporter = orderExcelExporter;
 		}
+		// Các hàm bên admin 
+		public async Task<PagedResultDto<ShippingInfoDto>> GetPagedAsync(OrderInput input)
+		{
 
+			var query = _orderRepository
+					.GetAll()
+					.Include(p => p.Items)
+					.AsQueryable();
+
+			if (!string.IsNullOrWhiteSpace(input.Keyword))
+			{
+				query = query.Where(p => p.ShippingName.ToLower().Contains(input.Keyword.ToLower()));
+			}
+			if (!string.IsNullOrWhiteSpace(input.Status))
+			{
+				query = query.Where(p => p.Status == input.Status);
+			}
+			if (input.FromDate.HasValue)
+			{
+				query = query.Where(x => x.CreationTime >= input.FromDate.Value);
+			}
+			if (input.ToDate.HasValue)
+			{
+				query = query.Where(x => x.CreationTime <= input.ToDate.Value.AddDays(1));
+			}
+			var totalCount = await query.CountAsync();
+			var orders = await query
+					.OrderBy(input.Sorting)
+					.PageBy(input)
+					.ToListAsync();
+			var result = orders.Select(p => new ShippingInfoDto
+			{
+				Id = p.Id,
+				FullName = p.ShippingName,
+				Address = p.ShippingAddress,
+				PhoneNumber = p.ShippingPhone,
+				PaymentMethod = p.PaymentMethod,
+				Status = p.Status,
+				OrderDate = p.OrderDate,
+				TotalAmount = p.TotalAmount,
+			}).ToList();
+			return new PagedResultDto<ShippingInfoDto>(totalCount, result);
+		}
+
+		public async Task<OrderDetailDto> GetAsync(EntityDto<int> input)
+		{
+			var order = await _orderRepository
+					.GetAllIncluding(o => o.Items) // nếu cần include
+					.FirstOrDefaultAsync(o => o.Id == input.Id);
+
+			if (order == null)
+			{
+				throw new UserFriendlyException("Đơn hàng không tồn tại.");
+			}
+
+			var dto = new OrderDetailDto
+			{
+				//Id = order.Id,
+				OrderCode = order.Id,
+				OrderDate = order.OrderDate,
+				PaymentMethod = order.PaymentMethod,
+				TotalAmount = order.TotalAmount,
+				Status = order.Status,
+			};
+			return dto;
+		}
+
+		public async Task<OrderDto> GetOrderDetail(int orderId)
+		{
+			var orderDetail = await _orderRepository
+					 .GetAll()
+					 .Include(o => o.Items)
+							 .ThenInclude(i => i.Product)
+					 .FirstOrDefaultAsync(o => o.Id == orderId);
+			var result = new OrderDto
+			{
+				PaymentMethod = orderDetail.PaymentMethod,
+				TotalAmount = orderDetail.TotalAmount,
+				Status = orderDetail.Status,
+				OrderDate = orderDetail.OrderDate,
+				FullName = orderDetail.ShippingName,
+				Address = orderDetail.ShippingAddress,
+				PhoneNumber = orderDetail.ShippingPhone,
+				Items = orderDetail.Items.Select(i => new OrderItemDto
+				{
+					ProductName = i.Product.Name,
+					Image = i.Product.Images,
+					Quantity = i.Quantity,
+					Price = i.UnitPrice
+				}).ToList()
+
+			};
+			return result;
+		}
+
+		// Order Export
+		public async Task<FileDto> ExportToExcel()
+		{
+			//var orders = await _orderRepository.GetAllIncluding(o => o.Items.Select(i => i.Product)).ToListAsync();
+			var orders = await _orderRepository
+			.GetAll()
+			.Include(o => o.Items)
+			.ThenInclude(i => i.Product)
+			.ToListAsync();
+			var orderDtos = orders.Select(o => new OrderDto
+			{
+				OrderDate = o.OrderDate,
+				PaymentMethod = o.PaymentMethod,
+				TotalAmount = o.TotalAmount,
+				Status = o.Status,
+				FullName = o.ShippingName,
+				Address = o.ShippingAddress,
+				PhoneNumber = o.ShippingPhone,
+				Items = o.Items?.Select(i => new OrderItemDto
+				{
+					ProductName = i.Product.Name,
+					Quantity = i.Quantity,
+					Price = i.UnitPrice
+				}).ToList()
+			}).ToList();
+
+			var fileBytes = await _orderExcelExporter.ExportToFileAsync(orderDtos);
+
+			var fileName = "DanhSachDonHang.xlsx";
+			return new FileDto(fileName, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+			{
+				FileToken = Guid.NewGuid().ToString(), // Bạn có thể thay bằng file cache token nếu muốn lưu file vào server
+				FileBytes = fileBytes
+			};
+		}
+
+		// Các hàm bên user
+
+		//Tạo order khi bấm mua ngay 
+		public async Task<int> CreateOrderDirectAsync(long userId, int productId, int quantity, string shippingName, string shippingAddress, string ward, string district, string province, string shippingPhone)
+		{
+			// Kiểm tra người dùng
+			if (userId <= 0)
+			{
+				throw new UserFriendlyException("Người dùng không hợp lệ.");
+			}
+
+			// Lấy sản phẩm
+			var product = await _productRepository.FirstOrDefaultAsync(productId);
+			if (product == null)
+			{
+				throw new UserFriendlyException("Sản phẩm không tồn tại.");
+			}
+
+			// Lấy tồn kho
+			var stock = await _stockRepository.FirstOrDefaultAsync(s => s.ProductId == productId);
+			if (stock == null || stock.StockQuantity < quantity)
+			{
+				throw new UserFriendlyException("Không đủ hàng trong kho.");
+			}
+
+			// Tính tổng tiền
+			var totalPrice = product.Price * quantity;
+			var address = $"{shippingAddress}, {ward}, {district}, {province}";
+			// Tạo đơn hàng
+			var order = new Order
+			{
+				UserId = userId,
+				OrderDate = DateTime.Now,
+				ShippingName = shippingName,
+				ShippingAddress = address,
+				ShippingPhone = shippingPhone,
+				TotalAmount = totalPrice,
+				PaymentMethod = "Thanh toán khi nhận hàng",
+				Status = "Đang xử lý"
+			};
+
+			await _orderRepository.InsertAsync(order);
+			await CurrentUnitOfWork.SaveChangesAsync(); // Đảm bảo order.Id được sinh ra
+
+			// Tạo dòng chi tiết đơn hàng
+			var orderItem = new OrderItem(quantity, product.Price)
+			{
+				OrderId = order.Id,
+				ProductId = product.Id
+			};
+
+			await _orderItemRepository.InsertAsync(orderItem);
+
+			// Trừ kho
+			stock.StockQuantity -= quantity;
+			await _stockRepository.UpdateAsync(stock);
+
+			return order.Id;
+		}
+		// Tạo order từ giỏ hàng
 		public async Task<int> CreateOrderFromCartAsync(long userId, string shippingName, string shippingAddress, string ward, string district, string province, string shippingPhone)
 		{
 			if (userId == 0)
@@ -116,13 +306,12 @@ namespace Acme.SimpleTaskApp.Orders
 				stock.StockQuantity -= item.Quantity;
 				await _stockRepository.UpdateAsync(stock);
 
-				// Xử lý FlashSale
+				// Xử lý FlashSale trong khoảng thời gian và còn lượt mua thì có thể mua
 				var flashSaleItem = await _flashSaleItemRepository
 				.GetAll()
 				.Include(x => x.FlashSale)
 				.FirstOrDefaultAsync(x =>
 						x.ProductId == item.ProductId &&
-						//x.FlashSaleId == FlashSale.Id &&
 						x.FlashSale.StartTime <= Clock.Now &&
 						x.FlashSale.EndTime >= Clock.Now);
 				if (flashSaleItem != null)
@@ -132,78 +321,36 @@ namespace Acme.SimpleTaskApp.Orders
 					{
 						throw new UserFriendlyException($"Sản phẩm '{item.ProductId}' trong chương trình Flash Sale đã hết lượt mua.");
 					}
-
 					flashSaleItem.Sold += item.Quantity;
 					await _flashSaleItemRepository.UpdateAsync(flashSaleItem);
 				}
-
 			}
-
-			// Xóa giỏ hàng và cartItem
 			await _cartItemRepository.DeleteAsync(x => x.CartId == cart.Id);
 			await _cartRepository.DeleteAsync(cart);
-
-
 			return order.Id;
 		}
-		//public async Task GetAll()
-		//{
-		//    await _orderRepository.GetAllAsync();
-		//}
 
-		public async Task<PagedResultDto<ShippingInfoDto>> GetPagedAsync(OrderInput input)
+		public async Task ConfirmDelivery(ConfirmDeliveryInput input)
 		{
-
-			var query = _orderRepository
-					.GetAll()
-					.Include(p => p.Items)
-					.AsQueryable();
-
-			if (!string.IsNullOrWhiteSpace(input.Keyword))
+			var order = await _orderRepository.FirstOrDefaultAsync(input.OrderId);
+			if (order == null)
 			{
-				query = query.Where(p => p.ShippingName.ToLower().Contains(input.Keyword.ToLower()));
+				throw new UserFriendlyException("Không tìm thấy đơn hàng");
 			}
 
-			if (!string.IsNullOrWhiteSpace(input.Status))
+			if (order.Status == "Hoàn thành")
 			{
-				query = query.Where(p => p.Status == input.Status);
+				throw new UserFriendlyException("Đơn hàng đã được xác nhận trước đó.");
 			}
 
-			if (input.FromDate.HasValue)
-			{
-				query = query.Where(x => x.CreationTime >= input.FromDate.Value);
-			}
+			order.Status = "Hoàn thành";
+			//order.CompletionTime = Clock.Now; // nếu bạn có trường này
 
-			if (input.ToDate.HasValue)
-			{
-				query = query.Where(x => x.CreationTime <= input.ToDate.Value.AddDays(1));
-			}
-
-			//if (input.Status.HasValue)
-			//{
-			//	query = query.Where(x => x.Status == input.Status)
-			//}
-
-			var totalCount = await query.CountAsync();
-			var orders = await query
-					.OrderBy(input.Sorting)
-					.PageBy(input)
-					.ToListAsync();
-
-			var result = orders.Select(p => new ShippingInfoDto
-			{
-				Id = p.Id,
-				FullName = p.ShippingName,
-				Address = p.ShippingAddress,
-				PhoneNumber = p.ShippingPhone,
-				PaymentMethod = p.PaymentMethod,
-				Status = p.Status,
-				OrderDate = p.OrderDate,
-				TotalAmount = p.TotalAmount,
-			}).ToList();
-			return new PagedResultDto<ShippingInfoDto>(totalCount, result);
+			await _orderRepository.UpdateAsync(order);
 		}
 
+
+		// Dùng cả admin và user
 		[HttpGet]
 		public async Task<GetOrderDetailsOutput> GetOrderDetails(int orderId)
 		{
@@ -262,50 +409,7 @@ namespace Acme.SimpleTaskApp.Orders
 			return result;
 		}
 
-		public async Task<OrderDetailDto> GetOrderDetailAsync(int id)
-		{
-			var order = await _orderRepository.FirstOrDefaultAsync(id);
-			if (order == null)
-			{
-				throw new UserFriendlyException("Không tìm thấy đơn hàng.");
-			}
-
-			return new OrderDetailDto
-			{
-				OrderCode = order.Id,
-				OrderDate = order.OrderDate,
-				PaymentMethod = order.PaymentMethod,
-				TotalAmount = order.TotalAmount,
-				Status = order.Status.ToString(),
-				//EstimatedDeliveryDate = order.EstimatedDeliveryDate
-			};
-		}
-
-		public async Task<OrderDetailDto> GetAsync(EntityDto<int> input)
-		{
-			var order = await _orderRepository
-					.GetAllIncluding(o => o.Items) // nếu cần include
-					.FirstOrDefaultAsync(o => o.Id == input.Id);
-
-			if (order == null)
-			{
-				throw new UserFriendlyException("Đơn hàng không tồn tại.");
-			}
-
-			var dto = new OrderDetailDto
-			{
-				//Id = order.Id,
-				OrderCode = order.Id,
-				OrderDate = order.OrderDate,
-				PaymentMethod = order.PaymentMethod,
-				TotalAmount = order.TotalAmount,
-				Status = order.Status,
-				//EstimatedDeliveryDate = order.EstimatedDeliveryDate
-			};
-
-			return dto;
-		}
-
+		
 		public async Task<List<GetOrderDetailsOutput>> GetOrderListUser()
 		{
 			var user = await _userManager.GetUserByIdAsync(AbpSession.UserId.Value);
@@ -338,149 +442,6 @@ namespace Acme.SimpleTaskApp.Orders
 			}).ToList();
 
 			return result;
-		}
-
-		public async Task<OrderDto> GetOrderDetail(int orderId)
-		{
-			var orderDetail = await _orderRepository
-					 .GetAll()
-					 .Include(o => o.Items)
-							 .ThenInclude(i => i.Product)
-					 .FirstOrDefaultAsync(o => o.Id == orderId);
-			var result = new OrderDto
-			{
-				PaymentMethod = orderDetail.PaymentMethod,
-				TotalAmount = orderDetail.TotalAmount,
-				Status = orderDetail.Status,
-				OrderDate = orderDetail.OrderDate,
-				FullName = orderDetail.ShippingName,
-				Address = orderDetail.ShippingAddress,
-				PhoneNumber = orderDetail.ShippingPhone,
-				Items = orderDetail.Items.Select(i => new OrderItemDto
-				{
-					ProductName = i.Product.Name,
-					Image = i.Product.Images,
-					Quantity = i.Quantity,
-					Price = i.UnitPrice
-				}).ToList()
-
-			};
-			return result;
-		}
-
-
-		public async Task ConfirmDelivery(ConfirmDeliveryInput input)
-		{
-			var order = await _orderRepository.FirstOrDefaultAsync(input.OrderId);
-			if (order == null)
-			{
-				throw new UserFriendlyException("Không tìm thấy đơn hàng");
-			}
-
-			if (order.Status == "Hoàn thành")
-			{
-				throw new UserFriendlyException("Đơn hàng đã được xác nhận trước đó.");
-			}
-
-			order.Status = "Hoàn thành";
-			//order.CompletionTime = Clock.Now; // nếu bạn có trường này
-
-			await _orderRepository.UpdateAsync(order);
-		}
-
-
-		// Order theo Id 
-		public async Task<int> CreateOrderDirectAsync(long userId, int productId, int quantity, string shippingName, string shippingAddress, string ward, string district, string province, string shippingPhone)
-		{
-			// Kiểm tra người dùng
-			if (userId <= 0)
-			{
-				throw new UserFriendlyException("Người dùng không hợp lệ.");
-			}
-
-			// Lấy sản phẩm
-			var product = await _productRepository.FirstOrDefaultAsync(productId);
-			if (product == null)
-			{
-				throw new UserFriendlyException("Sản phẩm không tồn tại.");
-			}
-
-			// Lấy tồn kho
-			var stock = await _stockRepository.FirstOrDefaultAsync(s => s.ProductId == productId);
-			if (stock == null || stock.StockQuantity < quantity)
-			{
-				throw new UserFriendlyException("Không đủ hàng trong kho.");
-			}
-
-			// Tính tổng tiền
-			var totalPrice = product.Price * quantity;
-			var address = $"{shippingAddress}, {ward}, {district}, {province}";
-			// Tạo đơn hàng
-			var order = new Order
-			{
-				UserId = userId,
-				OrderDate = DateTime.Now,
-				ShippingName = shippingName,
-				ShippingAddress = address,
-				ShippingPhone = shippingPhone,
-				TotalAmount = totalPrice,
-				PaymentMethod = "Thanh toán khi nhận hàng",
-				Status = "Đang xử lý"
-			};
-
-			await _orderRepository.InsertAsync(order);
-			await CurrentUnitOfWork.SaveChangesAsync(); // Đảm bảo order.Id được sinh ra
-
-			// Tạo dòng chi tiết đơn hàng
-			var orderItem = new OrderItem(quantity, product.Price)
-			{
-				OrderId = order.Id,
-				ProductId = product.Id
-			};
-
-			await _orderItemRepository.InsertAsync(orderItem);
-
-			// Trừ kho
-			stock.StockQuantity -= quantity;
-			await _stockRepository.UpdateAsync(stock);
-
-			return order.Id;
-		}
-
-		// Order Export
-		public async Task<FileDto> ExportToExcel()
-		{
-			//var orders = await _orderRepository.GetAllIncluding(o => o.Items.Select(i => i.Product)).ToListAsync();
-			var orders = await _orderRepository
-			.GetAll()
-			.Include(o => o.Items)
-			.ThenInclude(i => i.Product)
-			.ToListAsync();
-			var orderDtos = orders.Select(o => new OrderDto
-			{
-				OrderDate = o.OrderDate,
-				PaymentMethod = o.PaymentMethod,
-				TotalAmount = o.TotalAmount,
-				Status = o.Status,
-				FullName = o.ShippingName,
-				Address = o.ShippingAddress,
-				PhoneNumber = o.ShippingPhone,
-				Items = o.Items?.Select(i => new OrderItemDto
-				{
-					ProductName = i.Product.Name,
-					Quantity = i.Quantity,
-					Price = i.UnitPrice
-				}).ToList()
-			}).ToList();
-
-			var fileBytes = await _orderExcelExporter.ExportToFileAsync(orderDtos);
-
-			var fileName = "DanhSachDonHang.xlsx";
-			return new FileDto(fileName, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-			{
-				FileToken = Guid.NewGuid().ToString(), // Bạn có thể thay bằng file cache token nếu muốn lưu file vào server
-				FileBytes = fileBytes
-			};
 		}
 	}
 

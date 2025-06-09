@@ -18,252 +18,237 @@ using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using TaskListDto = Acme.SimpleTaskApp.Products.Dto.TaskListDto;
 namespace Acme.SimpleTaskApp.Products
-
 {
-    //[AbpAuthorize]
-    public class ProductAppService :  SimpleTaskAppAppServiceBase, IProductAppService
-    {
-        private readonly IRepository<Product> _productRepository;
-        private readonly IRepository<Stock> _stockRepository;
+	//[AbpAuthorize]
+	public class ProductAppService : SimpleTaskAppAppServiceBase, IProductAppService
+	{
+		private readonly IRepository<Product> _productRepository;
+		private readonly IRepository<Stock> _stockRepository;
+		public ProductAppService(IRepository<Product> productRepository, IRepository<Stock> stockRepository)
+		{
+			_productRepository = productRepository;
+			_stockRepository = stockRepository;
+		}
 
+		// Hàm sử dụng bên admin
+		public async Task<ListResultDto<ProductDto>> GetAll()
+		{
+			var products = await _productRepository
+					.GetAll()
+					.Include(p => p.Stock)
+					.ToListAsync();
 
+			var result = products.Select(p => new ProductDto
+			{
+				Id = p.Id,
+				Name = p.Name,
+				Description = p.Description,
+				Price = p.Price,
+				Images = p.Images,
+				StockQuantity = p.Stock.StockQuantity ?? 0,
+				CreationTime = p.CreationTime,
+			}).ToList();
 
-        public ProductAppService(IRepository<Product> productRepository, IRepository<Stock> stockRepository)
-        {
-            _productRepository = productRepository;
-            _stockRepository = stockRepository;
-        }
+			return new ListResultDto<ProductDto>(result);
+		}
+		private string GetSharedImagePath()
+		{
+			return Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"..\Product\ProductImages"));
+		}
+		[AbpAuthorize("Pages.Products.Create")]
+		public async System.Threading.Tasks.Task Create([FromForm] CreateProductDto input)
+		{
 
-        public async Task<ListResultDto<ProductDto>> GetAll()
-        {
-            var products = await _productRepository
-                .GetAll()
-                .Include(p => p.Stock)
-                .ToListAsync();
+			var product = new Product
+			{
+				Name = input.Name,
+				Description = input.Description,
+				Price = input.Price,
+				CategoryId = input.CategoryId,
+				CreationTime = Clock.Now
+			};
 
-            var result = products.Select(p => new ProductDto
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Description = p.Description,
-                Price = p.Price,
-                Images = p.Images,
-                StockQuantity = p.Stock.StockQuantity ?? 0,
-                CreationTime = p.CreationTime,
-            }).ToList();
+			if (input.Images != null && input.Images.Length > 0)
+			{
+				var fileName = Guid.NewGuid().ToString() + Path.GetExtension(input.Images.FileName);
+				var sharedPath = Path.Combine(GetSharedImagePath(), fileName);
 
-            return new ListResultDto<ProductDto>(result);
-        }
+				using (var stream = new FileStream(sharedPath, FileMode.Create))
+				{
+					await input.Images.CopyToAsync(stream);
+				}
 
-        public async Task<ListResultDto<ProductDto>> GetByCategoryIdAsync(string categoryId)
-        {
-            var filtered = await _productRepository.GetAllListAsync(p => p.CategoryId == categoryId);
-            var result = filtered.Select(p => new ProductDto
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Price = p.Price
-            }).ToList();
-            return new ListResultDto<ProductDto>(result);
-        }
+				// Đường dẫn dùng để hiển thị ảnh trong trình duyệt
+				product.Images = "/ProductImages/" + fileName;
+			}
+			// Thêm sản phẩm trước để có ProductId
+			var createdProduct = await _productRepository.InsertAsync(product);
+			await CurrentUnitOfWork.SaveChangesAsync(); // Đảm bảo ProductId được tạo ra
 
-        private string GetSharedImagePath()
-        {
-            return Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"..\Product\ProductImages"));
-        }
-        [AbpAuthorize("Pages.Products.Create")]
-        public async System.Threading.Tasks.Task Create([FromForm] CreateProductDto input)
-        {
+			// Tạo stock tương ứng
+			var stock = new Stock
+			{
+				ProductId = createdProduct.Id,
+				StockQuantity = 0, // hoặc bạn có thể nhận từ input nếu có
+				CreationTime = Clock.Now
+			};
 
-            var product = new Product
-            {
-                Name = input.Name,
-                Description = input.Description,
-                Price = input.Price,
-                CategoryId = input.CategoryId,
-                CreationTime = Clock.Now
-            };
+			await _stockRepository.InsertAsync(stock);
+		}
+		public async Task<ProductDto> GetByIdAsync(EntityDto<int> input)
+		{
+			var product = await _productRepository.GetAsync(input.Id);
+			return ObjectMapper.Map<ProductDto>(product);
+		}
 
-            if (input.Images != null && input.Images.Length > 0)
-            {
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(input.Images.FileName);
-                var sharedPath = Path.Combine(GetSharedImagePath(), fileName);
+		[AbpAuthorize("Pages.Products.Edit")]
 
-                using (var stream = new FileStream(sharedPath, FileMode.Create))
-                {
-                    await input.Images.CopyToAsync(stream);
-                }
+		[HttpPost]
+		public async Task UpdateProductData([FromForm] UpdateProductDto input)
+		{
+			var product = await _productRepository.FirstOrDefaultAsync(p => p.Id == input.Id);
+			if (product == null)
+			{
+				throw new UserFriendlyException("Sản phẩm không tồn tại.");
+			}
 
-                // Đường dẫn dùng để hiển thị ảnh trong trình duyệt
-                product.Images = "/ProductImages/" + fileName;
-            }
-            // Thêm sản phẩm trước để có ProductId
-            var createdProduct = await _productRepository.InsertAsync(product);
-            await CurrentUnitOfWork.SaveChangesAsync(); // Đảm bảo ProductId được tạo ra
+			product.Name = input.Name;
+			product.Description = input.Description;
+			product.Price = input.Price;
+			product.CategoryId = input.CategoryId;
 
-            // Tạo stock tương ứng
-            var stock = new Stock
-            {
-                ProductId = createdProduct.Id,
-                StockQuantity = 0, // hoặc bạn có thể nhận từ input nếu có
-                CreationTime = Clock.Now
-            };
+			if (input.Images != null && input.Images.Length > 0)
+			{
+				// 1. Xoá ảnh cũ nếu tồn tại
+				if (!string.IsNullOrEmpty(product.Images))
+				{
+					var oldPath = Path.Combine(GetSharedImagePath(), Path.GetFileName(product.Images));
+					if (System.IO.File.Exists(oldPath))
+					{
+						System.IO.File.Delete(oldPath);
+					}
+				}
 
-            await _stockRepository.InsertAsync(stock);
-        }
+				// 2. Lưu ảnh mới
+				var newFileName = Guid.NewGuid().ToString() + Path.GetExtension(input.Images.FileName);
+				var newPath = Path.Combine(GetSharedImagePath(), newFileName);
 
-        public async Task<ProductDto> GetByIdProduct(int productId)
-        {
-            var product = await _productRepository.GetAsync(productId);
-            return ObjectMapper.Map<ProductDto>(product);
-        }
-        public async Task<ProductDto> GetByIdAsync(EntityDto<int> input)
-        {
-            var product = await _productRepository.GetAsync(input.Id);
-            return ObjectMapper.Map<ProductDto>(product);
-        }
-        
-        [AbpAuthorize("Pages.Products.Edit")]
+				using (var stream = new FileStream(newPath, FileMode.Create))
+				{
+					await input.Images.CopyToAsync(stream);
+				}
 
-        [HttpPost]
-        public  async Task UpdateProductData([FromForm]  UpdateProductDto input)
-        {
-            var product = await _productRepository.FirstOrDefaultAsync(p => p.Id == input.Id);
-            if (product == null)
-            {
-                throw new UserFriendlyException("Sản phẩm không tồn tại.");
-            }
+				// 3. Cập nhật đường dẫn hiển thị
+				product.Images = "/ProductImages/" + newFileName;
+			}
 
-            product.Name = input.Name;
-            product.Description = input.Description;
-            product.Price = input.Price;
-            product.CategoryId = input.CategoryId;
+			await _productRepository.UpdateAsync(product);
+		}
+		[AbpAuthorize("Pages.Products.Delete")]
+		public async Task DeleteAsync(EntityDto<int> input)
+		{
+			await _productRepository.DeleteAsync(input.Id);
+		}
+		public async Task<PagedResultDto<ProductDto>> GetPagedAsync(ProductInput input)
+		{
+			try
+			{
+				var query = _productRepository
+						.GetAll()
+						.Include(c => c.Category)
+						.AsQueryable();
 
-            if (input.Images != null && input.Images.Length > 0)
-            {
-                // 1. Xoá ảnh cũ nếu tồn tại
-                if (!string.IsNullOrEmpty(product.Images))
-                {
-                    var oldPath = Path.Combine(GetSharedImagePath(), Path.GetFileName(product.Images));
-                    if (System.IO.File.Exists(oldPath))
-                    {
-                        System.IO.File.Delete(oldPath);
-                    }
-                }
+				if (!string.IsNullOrWhiteSpace(input.CategoryId))
+				{
+					query = query.Where(p => p.CategoryId == input.CategoryId);
+				}
 
-                // 2. Lưu ảnh mới
-                var newFileName = Guid.NewGuid().ToString() + Path.GetExtension(input.Images.FileName);
-                var newPath = Path.Combine(GetSharedImagePath(), newFileName);
+				if (!string.IsNullOrWhiteSpace(input.Keyword))
+				{
+					query = query.Where(p => p.Name.ToLower().Contains(input.Keyword.ToLower()));
+				}
 
-                using (var stream = new FileStream(newPath, FileMode.Create))
-                {
-                    await input.Images.CopyToAsync(stream);
-                }
+				if (input.FromDate.HasValue)
+				{
+					query = query.Where(x => x.CreationTime >= input.FromDate.Value);
+				}
 
-                // 3. Cập nhật đường dẫn hiển thị
-                product.Images = "/ProductImages/" + newFileName;
-            }
+				if (input.ToDate.HasValue)
+				{
+					query = query.Where(x => x.CreationTime <= input.ToDate.Value.AddDays(1));
+				}
 
-            await _productRepository.UpdateAsync(product);
-        }
-        [AbpAuthorize("Pages.Products.Delete")]
-        public async Task DeleteAsync(EntityDto<int> input)
-        {
-            await _productRepository.DeleteAsync(input.Id);
-        }
-        public async Task<PagedResultDto<ProductDto>> GetPagedAsync(ProductInput input)
-        {
-            try
-            {
-                var query = _productRepository
-                    .GetAll()
-                    .Include(c => c.Category)
-                    .AsQueryable(); 
+				var totalCount = await query.CountAsync();
+				var products = await query
+						.OrderBy(input.Sorting)
+						.PageBy(input)
+						.ToListAsync();
 
-                if (!string.IsNullOrWhiteSpace(input.CategoryId))
-                {
-                    query = query.Where(p => p.CategoryId == input.CategoryId);
-                }
+				var result = products.Select(p => new ProductDto
+				{
+					Id = p.Id,
+					Name = p.Name,
+					Description = p.Description,
+					Price = p.Price,
+					Images = p.Images,
+					CreationTime = p.CreationTime,
+					CategoryName = p.Category != null ? p.Category.Name : "Không có danh mục"
+				}).ToList();
+				return new PagedResultDto<ProductDto>(totalCount, result);
+			}
+			catch (Exception ex)
+			{
+				// Ghi log hoặc debug tại đây
+				throw new UserFriendlyException("Lỗi xử lý GetPagedAsync: " + ex.Message, ex);
+			}
+		}
 
-                if (!string.IsNullOrWhiteSpace(input.Keyword))
-                {
-                    query = query.Where(p => p.Name.ToLower().Contains(input.Keyword.ToLower()));
-                }
+		// Hàm sử dụng bên user
+		public async Task<PagedResultDto<ProductDto>> GetPagedForUserAsync(ProductInputUser input)
+		{
+			var query = _productRepository
+					.GetAll()
+					.Include(p => p.Stock)
+					.Include(p => p.Category)
+					.AsQueryable()
+					.Where(p => p.Stock.StockQuantity > 0);
 
-                if (input.FromDate.HasValue)
-                {
-                    query = query.Where(x => x.CreationTime >= input.FromDate.Value);
-                }
+			if (!string.IsNullOrWhiteSpace(input.CategoryId))
+			{
+				query = query.Where(p => p.CategoryId == input.CategoryId);
+			}
 
-                if (input.ToDate.HasValue)
-                {
-                    query = query.Where(x => x.CreationTime <= input.ToDate.Value.AddDays(1)); 
-                }
+			if (!string.IsNullOrWhiteSpace(input.Keyword))
+			{
+				query = query.Where(p => p.Name.ToLower().Contains(input.Keyword.ToLower()));
+			}
 
-                var totalCount = await query.CountAsync();
-                var products = await query
-                    .OrderBy(input.Sorting)
-                    .PageBy(input)
-                    .ToListAsync();
+			var totalCount = await query.CountAsync();
+			var products = await query
+					.OrderBy(input.Sorting)
+					.PageBy(input)
+					.ToListAsync();
 
-                var result = products.Select(p => new ProductDto
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Description = p.Description,
-                    Price = p.Price,
-                    Images = p.Images,
-                    CreationTime = p.CreationTime,
-                    CategoryName = p.Category != null ? p.Category.Name : "Không có danh mục"
-                }).ToList();
-                return new PagedResultDto<ProductDto>(totalCount, result);
-            }
-            catch (Exception ex)
-            {
-                // Ghi log hoặc debug tại đây
-                throw new UserFriendlyException("Lỗi xử lý GetPagedAsync: " + ex.Message, ex);
-            }
-        }
+			var result = products.Select(p => new ProductDto
+			{
+				Id = p.Id,
+				Name = p.Name,
+				Description = p.Description,
+				Price = p.Price,
+				Images = p.Images,
+				StockQuantity = p.Stock?.StockQuantity ?? 0,
+				CreationTime = p.CreationTime,
+				CategoryName = p.Category?.Name ?? "Không có danh mục"
+			}).ToList();
 
-        public async Task<PagedResultDto<ProductDto>> GetPagedForUserAsync(ProductInputUser input)
-        {
-            var query = _productRepository
-                .GetAll()
-                .Include(p => p.Stock)
-                .Include(p => p.Category)
-                .AsQueryable()
-                .Where(p => p.Stock.StockQuantity > 0);
+			return new PagedResultDto<ProductDto>(totalCount, result);
+		}
 
-            if (!string.IsNullOrWhiteSpace(input.CategoryId))
-            {
-                query = query.Where(p => p.CategoryId == input.CategoryId);
-            }
-
-            if (!string.IsNullOrWhiteSpace(input.Keyword))
-            {
-                query = query.Where(p => p.Name.ToLower().Contains(input.Keyword.ToLower()));
-            }
-
-            var totalCount = await query.CountAsync();
-            var products = await query
-                .OrderBy(input.Sorting)
-                .PageBy(input)
-                .ToListAsync();
-
-            var result = products.Select(p => new ProductDto
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Description = p.Description,
-                Price = p.Price,
-                Images = p.Images,
-                StockQuantity = p.Stock?.StockQuantity ?? 0,
-                CreationTime = p.CreationTime,
-                CategoryName = p.Category?.Name ?? "Không có danh mục"
-            }).ToList();
-
-            return new PagedResultDto<ProductDto>(totalCount, result);
-        }
-        
-    }
+		// Hàm sử dụng cả admin cả user 
+		public async Task<ProductDto> GetByIdProduct(int productId)
+		{
+			var product = await _productRepository.GetAsync(productId);
+			return ObjectMapper.Map<ProductDto>(product);
+		}
+	}
 }
