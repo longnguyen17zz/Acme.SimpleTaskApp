@@ -21,5 +21,7 @@ namespace Acme.SimpleTaskApp.Products
 
 		Task<PagedResultDto<ProductDto>> GetPagedForUserAsync(ProductInputUser input);
 
+		Task<ListResultDto<ProductDto>> GetByCategoryIdAsync(string categoryId);
+
 	}
 }

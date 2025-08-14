@@ -4,6 +4,7 @@ using Abp.Domain.Repositories;
 using Abp.Linq.Extensions;
 using Abp.Timing;
 using Abp.UI;
+using Acme.SimpleTaskApp.Entities.Categories;
 using Acme.SimpleTaskApp.Entities.Products;
 using Acme.SimpleTaskApp.Entities.Stocks;
 using Acme.SimpleTaskApp.Products.Dto;
@@ -45,7 +46,7 @@ namespace Acme.SimpleTaskApp.Products
 				Description = p.Description,
 				Price = p.Price,
 				Images = p.Images,
-				StockQuantity = p.Stock.StockQuantity ?? 0,
+				StockQuantity = (p.Stock.InitQuantity - p.Stock.SellQuantity) ?? 0,
 				CreationTime = p.CreationTime,
 			}).ToList();
 
@@ -89,7 +90,6 @@ namespace Acme.SimpleTaskApp.Products
 			var stock = new Stock
 			{
 				ProductId = createdProduct.Id,
-				StockQuantity = 0, // hoặc bạn có thể nhận từ input nếu có
 				CreationTime = Clock.Now
 			};
 
@@ -203,6 +203,18 @@ namespace Acme.SimpleTaskApp.Products
 			}
 		}
 
+		public async Task<ListResultDto<ProductDto>> GetByCategoryIdAsync(string categoryId)
+		{
+			var filtered = await _productRepository.GetAllListAsync(p => p.CategoryId == categoryId);
+			var result = filtered.Select(p => new ProductDto
+			{
+				Id = p.Id,
+				Name = p.Name,
+				Price = p.Price
+			}).ToList();
+			return new ListResultDto<ProductDto>(result);
+		}
+
 		// Hàm sử dụng bên user
 		public async Task<PagedResultDto<ProductDto>> GetPagedForUserAsync(ProductInputUser input)
 		{
@@ -211,7 +223,7 @@ namespace Acme.SimpleTaskApp.Products
 					.Include(p => p.Stock)
 					.Include(p => p.Category)
 					.AsQueryable()
-					.Where(p => p.Stock.StockQuantity > 0);
+					.Where(p => (p.Stock.InitQuantity - p.Stock.SellQuantity) > 0);
 
 			if (!string.IsNullOrWhiteSpace(input.CategoryId))
 			{
@@ -236,7 +248,7 @@ namespace Acme.SimpleTaskApp.Products
 				Description = p.Description,
 				Price = p.Price,
 				Images = p.Images,
-				StockQuantity = p.Stock?.StockQuantity ?? 0,
+				StockQuantity = (p.Stock.InitQuantity - p.Stock.SellQuantity) ?? 0,
 				CreationTime = p.CreationTime,
 				CategoryName = p.Category?.Name ?? "Không có danh mục"
 			}).ToList();

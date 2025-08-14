@@ -123,10 +123,6 @@
                                  <i class="fas fa-edit mr-2"></i>  ${l('Edit')}
                              </button>
                              <div class="dropdown-divider m-0"></div>
-                             <button type="button" class="dropdown-item text-secondary view-product-detail" data-tour-id="${row.id}" data-tour-name="${row.name}">
-                                 <i class="fas fa-eye mr-2"></i>  ${l('Details')}
-                             </button>
-                             <div class="dropdown-divider m-0"></div>
                              <button type="button" class="dropdown-item text-danger delete-product" data-product-id="${row.id}" data-product-name="${row.name}">
                                  <i class="fas fa-trash-alt mr-2"></i>  ${l('Delete')}
                              </button>
@@ -339,12 +335,7 @@
         _$productsTable.ajax.reload();
     })
 
-  $(".DeleteByDate").on('click', function () {
-    $("#FromDate").val('');
-    $("#ToDate").val('');
-
-  })
-
+ 
     
 
     var _categoryService = abp.services.app.category;

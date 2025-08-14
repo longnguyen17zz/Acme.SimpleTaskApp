@@ -217,7 +217,7 @@ namespace Acme.SimpleTaskApp.Orders
 
 			// Lấy tồn kho
 			var stock = await _stockRepository.FirstOrDefaultAsync(s => s.ProductId == productId);
-			if (stock == null || stock.StockQuantity < quantity)
+			if (stock == null || (stock.InitQuantity-stock.SellQuantity) < quantity)
 			{
 				throw new UserFriendlyException("Không đủ hàng trong kho.");
 			}
@@ -251,7 +251,7 @@ namespace Acme.SimpleTaskApp.Orders
 			await _orderItemRepository.InsertAsync(orderItem);
 
 			// Trừ kho
-			stock.StockQuantity -= quantity;
+			stock.SellQuantity += quantity;
 			await _stockRepository.UpdateAsync(stock);
 
 			return order.Id;
@@ -303,7 +303,7 @@ namespace Acme.SimpleTaskApp.Orders
 				{
 					throw new UserFriendlyException($"Không tìm thấy sản phẩm với ID {item.ProductId}");
 				}
-				stock.StockQuantity -= item.Quantity;
+				stock.SellQuantity += item.Quantity;
 				await _stockRepository.UpdateAsync(stock);
 
 				// Xử lý FlashSale trong khoảng thời gian và còn lượt mua thì có thể mua

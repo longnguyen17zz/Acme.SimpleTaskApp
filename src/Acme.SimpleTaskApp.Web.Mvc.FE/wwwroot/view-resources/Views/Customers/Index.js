@@ -93,6 +93,29 @@
             }
             $("#buyNowQuantity").val($(this).val());
         });
+
+      //$(document).on('click', function () {
+      //  var searchOrder = $('#searchOrder').val();
+      //  $.ajax({
+      //    url: '/Orders/SearchOrder',
+      //    method: 'POST',
+      //    data: { searchOrder },
+      //    success: function () {
+      //      // Tải lại nội dung giỏ hàng (nếu có container để hiển thị tóm tắt giỏ)
+      //      $('#cart-container').load('/Carts/Index');
+
+      //      abp.message.success('Đã thêm vào giỏ hàng');
+
+      //      $.get('/Carts/GetCartCount', function (count) {
+      //        $('#cart-badge').text(count);
+      //      });
+      //    },
+      //    error: function () {
+      //      alert("Vui lòng đăng nhập");
+      //    }
+      //  });
+
+      //})
         // Giỏ hàng
         $(document).on("click", ".shopping-cart, .shopping-cart-detail", function (event) {
             event.preventDefault();

@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 
 namespace Acme.SimpleTaskApp.Stocks.Dto
 {
-    public class UpdateStockDto : EntityDto<int>
-    {
-        public int StockQuantity { get; set; }
-    }
+	public class UpdateStockDto : EntityDto<int>
+	{
+		public int StockQuantity { get; set; }
+
+		public int InitQuantity { get; set; }
+	}
 }

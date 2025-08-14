@@ -10,7 +10,7 @@ using Acme.SimpleTaskApp.Entities.Stocks;
 namespace Acme.SimpleTaskApp.Entities.Products
 {
     [Table("AppProducts")]
-    public class Product : AuditedEntity<int>, IHasCreationTime
+    public class Product : FullAuditedEntity<int>, IHasCreationTime
     {
         public const int MaxNameLength = 256;
         public const int MaxDescriptionLength = 64 * 1024; //64KB

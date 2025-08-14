@@ -1,4 +1,5 @@
 ﻿using Abp.Domain.Entities;
+using Abp.Domain.Entities.Auditing;
 using Acme.SimpleTaskApp.Entities.Orders;
 using Acme.SimpleTaskApp.Entities.Products;
 using System;
@@ -9,8 +10,8 @@ namespace Acme.SimpleTaskApp.Entities.OrderItems
 {
     [Table("AppOrderItems")]
 
-    public class OrderItem : Entity<int>
-    {
+    public class OrderItem : FullAuditedEntity<int>
+	{
 
         public int OrderId { get; set; }
 
