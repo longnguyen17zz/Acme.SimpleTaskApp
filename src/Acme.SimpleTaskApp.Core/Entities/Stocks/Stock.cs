@@ -1,5 +1,6 @@
 ﻿using Abp.Domain.Entities.Auditing;
-using Acme.SimpleTaskApp.Entities.Batchs;
+using Acme.SimpleTaskApp.Entities.Batches;
+//using Acme.SimpleTaskApp.Entities.Batchs;
 using Acme.SimpleTaskApp.Entities.Products;
 using System;
 using System.Collections.Generic;

@@ -97,6 +97,7 @@ namespace Acme.SimpleTaskApp.Stocks
 		{
 			var stock = await _stockRepository.FirstOrDefaultAsync(p => p.Id == input.Id);
 			stock.InitQuantity = input.InitQuantity;
+			stock.SellQuantity = 0;
 			stock.LastModificationTime = DateTime.Now;
 			await _stockRepository.UpdateAsync(stock);
 		}

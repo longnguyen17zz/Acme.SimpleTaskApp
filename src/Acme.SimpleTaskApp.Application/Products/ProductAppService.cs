@@ -46,7 +46,7 @@ namespace Acme.SimpleTaskApp.Products
 				Description = p.Description,
 				Price = p.Price,
 				Images = p.Images,
-				StockQuantity = (p.Stock.InitQuantity - p.Stock.SellQuantity) ?? 0,
+				StockQuantity = (p.Stock?.InitQuantity - p.Stock?.SellQuantity) ?? 0,
 				CreationTime = p.CreationTime,
 			}).ToList();
 
@@ -57,7 +57,7 @@ namespace Acme.SimpleTaskApp.Products
 			return Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"..\Product\ProductImages"));
 		}
 		[AbpAuthorize("Pages.Products.Create")]
-		public async System.Threading.Tasks.Task Create([FromForm] CreateProductDto input)
+		public async Task Create([FromForm] CreateProductDto input)
 		{
 
 			var product = new Product
@@ -73,12 +73,10 @@ namespace Acme.SimpleTaskApp.Products
 			{
 				var fileName = Guid.NewGuid().ToString() + Path.GetExtension(input.Images.FileName);
 				var sharedPath = Path.Combine(GetSharedImagePath(), fileName);
-
 				using (var stream = new FileStream(sharedPath, FileMode.Create))
 				{
 					await input.Images.CopyToAsync(stream);
 				}
-
 				// Đường dẫn dùng để hiển thị ảnh trong trình duyệt
 				product.Images = "/ProductImages/" + fileName;
 			}

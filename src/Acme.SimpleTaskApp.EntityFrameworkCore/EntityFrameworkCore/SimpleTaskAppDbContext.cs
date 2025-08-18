@@ -2,7 +2,7 @@
 using Acme.SimpleTaskApp.Authorization.Roles;
 using Acme.SimpleTaskApp.Authorization.Users;
 using Acme.SimpleTaskApp.Entities.Banners;
-using Acme.SimpleTaskApp.Entities.Batchs;
+using Acme.SimpleTaskApp.Entities.Batches;
 using Acme.SimpleTaskApp.Entities.CartItems;
 using Acme.SimpleTaskApp.Entities.Carts;
 using Acme.SimpleTaskApp.Entities.Categories;

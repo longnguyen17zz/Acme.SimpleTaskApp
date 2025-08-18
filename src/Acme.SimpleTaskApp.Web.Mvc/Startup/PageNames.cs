@@ -11,6 +11,7 @@ public class PageNames
     public const string Categories = "Categories";
     public const string Orders = "Orders";
     public const string Stocks = "Stocks";
-    public const string FlashSales = "FlashSales";
+    public const string Batches = "Batches";
+	public const string FlashSales = "FlashSales";
 
 }

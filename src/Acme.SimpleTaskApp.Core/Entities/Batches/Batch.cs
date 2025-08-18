@@ -2,7 +2,7 @@
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Acme.SimpleTaskApp.Entities.Batchs
+namespace Acme.SimpleTaskApp.Entities.Batches
 {
 	[Table("AppBatches")]
 	public class Batch : FullAuditedEntity<int>
@@ -10,10 +10,10 @@ namespace Acme.SimpleTaskApp.Entities.Batchs
 		public DateTime DateEntry { get; set; }
 		public string Importer { get; set; }
 
-		public Batch(DateTime dateEntry, string importer)
-		{
-			DateEntry = dateEntry;
-			Importer = importer;
-		}
+		//public Batch(DateTime dateEntry, string importer)
+		//{
+		//	DateEntry = dateEntry;
+		//	Importer = importer;
+		//}
 	}
 }

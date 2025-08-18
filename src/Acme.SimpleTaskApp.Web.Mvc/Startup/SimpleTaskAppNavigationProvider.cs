@@ -171,12 +171,20 @@ public class SimpleTaskAppNavigationProvider : NavigationProvider
             )
             .AddItem(
                 new MenuItemDefinition(
-                    "Stocks",
-                    L("Stocks"),
-                    url: "Stocks",
+                    "Batches",
+                    L("Batches"),
+                    url: "Batches",
                     icon: "fas fa-warehouse"
                     )
-            ).AddItem(
+            )
+						.AddItem(
+								new MenuItemDefinition(
+										"Stocks",
+										L("Stocks"),
+										url: "Stocks",
+										icon: "fas fa-warehouse"
+										)
+						).AddItem(
                 new MenuItemDefinition(
                     "OrderList",
                     L("Orders"),
