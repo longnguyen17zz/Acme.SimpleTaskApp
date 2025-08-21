@@ -14,6 +14,8 @@ using Acme.SimpleTaskApp.Entities.CartItems;
 using NUglify.Helpers;
 using Acme.SimpleTaskApp.Carts.Dto;
 using Acme.SimpleTaskApp.Products;
+using Acme.SimpleTaskApp.VnPays;
+using Acme.SimpleTaskApp.VnPays.Dto;
 
 namespace Acme.SimpleTaskApp.Web.Controllers
 {
@@ -24,14 +26,17 @@ namespace Acme.SimpleTaskApp.Web.Controllers
         public readonly ICartItemAppService _cartItemAppService;
         public readonly IProductAppService _productAppService;
 
+		    private readonly IVnPayService _vnPayService;
 
-        public CheckoutsController(UserManager userManager, IOrderAppService orderAppService, ICartItemAppService cartItemAppService, IProductAppService productAppService)
+
+		public CheckoutsController(UserManager userManager, IOrderAppService orderAppService, ICartItemAppService cartItemAppService, IProductAppService productAppService, IVnPayService vnPayService)
         {
             _userManager = userManager;
              _orderAppService = orderAppService;
             _cartItemAppService = cartItemAppService;
             _productAppService = productAppService;
-        }
+			      _vnPayService = vnPayService;
+		}
 
         public async Task<IActionResult> Index(List<int> cartItemId, List<int> quantity, int? productId, int? buyNowQuantity)
         {
@@ -123,7 +128,7 @@ namespace Acme.SimpleTaskApp.Web.Controllers
             return View("Index", model);  
         } 
         [HttpPost]
-        public async Task<IActionResult> Checkout(string shippingName, string shippingAddress, string ward, string district, string province, string shippingPhone, int? productId, int? buyNowQuantity)
+        public async Task<IActionResult> Checkout(string shippingName, string shippingAddress, string ward, string province, string shippingPhone, int? productId, int? buyNowQuantity)
         {
             var user = await _userManager.GetUserByIdAsync(AbpSession.UserId.Value);
             if (user == null)
@@ -136,17 +141,30 @@ namespace Acme.SimpleTaskApp.Web.Controllers
             if (productId.HasValue && buyNowQuantity.HasValue)
             {
                 // Mua ngay
-                orderId = await _orderAppService.CreateOrderDirectAsync(userId, productId.Value, buyNowQuantity.Value, shippingName, shippingAddress, ward, district, province, shippingPhone);
+                orderId = await _orderAppService.CreateOrderDirectAsync(userId, productId.Value, buyNowQuantity.Value, shippingName, shippingAddress, ward, province, shippingPhone);
             }
             else
             {
                 // Giỏ hàng
-                orderId = await _orderAppService.CreateOrderFromCartAsync(userId, shippingName, shippingAddress, ward, district, province, shippingPhone);
+                orderId = await _orderAppService.CreateOrderFromCartAsync(userId, shippingName, shippingAddress, ward, province, shippingPhone);
             }
 
             return RedirectToAction("OrderSuccess", "Orders", new { id = orderId });
         }
 
+		    public IActionResult CreatePaymentUrl(PaymentInformationDto model)
+		    {
+			    var url = _vnPayService.CreatePaymentUrl(model, HttpContext);
 
-    }
+			    return Redirect(url);
+		    }
+
+		    public IActionResult PaymentCallback()
+		    {
+			    var response = _vnPayService.PaymentExecute(Request.Query);
+
+			    return Json(response);
+		    }
+
+	}
 }

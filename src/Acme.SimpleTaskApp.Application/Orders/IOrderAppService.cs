@@ -11,9 +11,9 @@ namespace Acme.SimpleTaskApp.Orders
 {
 	public interface IOrderAppService : IApplicationService
 	{
-		Task<int> CreateOrderFromCartAsync(long userId, string shippingName, string shippingAddress, string ward, string district, string province, string shippingPhone);
+		Task<int> CreateOrderFromCartAsync(long userId, string shippingName, string shippingAddress, string ward, string province, string shippingPhone);
 
-		Task<int> CreateOrderDirectAsync(long userId, int productId, int quantity, string shippingName, string shippingAddress, string ward, string district, string province, string shippingPhone);
+		Task<int> CreateOrderDirectAsync(long userId, int productId, int quantity, string shippingName, string shippingAddress, string ward, string province, string shippingPhone);
 		Task<PagedResultDto<ShippingInfoDto>> GetPagedAsync(OrderInput input);
 
 		Task<GetOrderDetailsOutput> GetOrderDetails(int orderId);

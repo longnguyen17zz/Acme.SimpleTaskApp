@@ -15,14 +15,15 @@ namespace Acme.SimpleTaskApp.Stocks.Dto
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
 
+        public int BatchId { get; set; }
 
-        public void Normalize()
-        {
-            if (string.IsNullOrEmpty(Sorting))
+		    public void Normalize()
             {
-                Sorting = "CreationTime DESC";
-            }
+                if (string.IsNullOrEmpty(Sorting))
+                {
+                    Sorting = "CreationTime DESC";
+                }
 
+            }
         }
-    }
 }

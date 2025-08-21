@@ -3,7 +3,8 @@
         l = abp.localization.getSource('SimpleTaskApp'),
         _$modal = $('#StockCreateModal'),
         _$form = _$modal.find('form'),
-        _$table = $('#StocksTable');
+    _$table = $('#StocksTable');
+  //_batchId = null;
     console.log(_stockService);
 
     var _$stocksTable = _$table.DataTable({
@@ -15,7 +16,8 @@
         listAction: {
             ajaxFunction: _stockService.getPaged,
             inputFilter: function () {
-                var filter = $('#ProductsSearchForm').serializeFormToObject(true);
+              var filter = $('#ProductsSearchForm').serializeFormToObject(true);
+							//filter.batchId = _batchId; 
                 console.log(filter);
                 //return $('#ProductsSearchForm').serializeFormToObject(true);
                 return filter;

@@ -254,3 +254,6 @@ paket-files/
 src/Acme.SimpleTaskApp.Web.Mvc/secrets.json
 src/Acme.SimpleTaskApp.Web.Host/secrets.json
 src/Acme.SimpleTaskApp.Migrator/secrets.json
+*.txt
+/src/Acme.SimpleTaskApp.Web.Mvc.FE/App_Data/Logs
+/src/Acme.SimpleTaskApp.Web.Mvc.FE/App_Data

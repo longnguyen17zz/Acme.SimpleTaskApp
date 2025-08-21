@@ -58,6 +58,11 @@ namespace Acme.SimpleTaskApp.Stocks
 				query = query.Where(x => x.CreationTime <= input.ToDate.Value.AddDays(1));
 			}
 
+			//if(input.BatchId != null)
+			//{
+			//	query = query.Where(x => x.BatchId == input.BatchId);
+			//}
+
 			var totalCount = await query.CountAsync();
 			var stocks = await query
 					.OrderBy(input.Sorting)

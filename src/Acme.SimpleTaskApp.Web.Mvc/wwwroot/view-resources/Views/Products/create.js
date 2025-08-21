@@ -15,7 +15,7 @@
                     processData: false, 
                     contentType: false, 
                     success: function () {
-                        alert("Thêm sản phẩm thành công!");
+                        alert("Thêm mới đơn nhập thành công!");
                         location.href = '/Products';
                     },
                     error: function (err) {

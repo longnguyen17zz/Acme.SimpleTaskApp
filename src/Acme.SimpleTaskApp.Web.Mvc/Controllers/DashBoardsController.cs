@@ -1,4 +1,5 @@
-﻿using Acme.SimpleTaskApp.Controllers;
+﻿using Abp.AspNetCore.Mvc.Authorization;
+using Acme.SimpleTaskApp.Controllers;
 using Acme.SimpleTaskApp.Orders;
 using Acme.SimpleTaskApp.Web.Models.Dashboards;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +8,9 @@ using System.Threading.Tasks;
 
 namespace Acme.SimpleTaskApp.Web.Controllers
 {
-    public class DashBoardsController : SimpleTaskAppControllerBase
+	[AbpMvcAuthorize]
+
+	public class DashBoardsController : SimpleTaskAppControllerBase
     {
         private readonly IOrderAppService _orderAppService;
 

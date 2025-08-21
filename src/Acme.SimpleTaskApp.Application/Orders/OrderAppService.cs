@@ -200,7 +200,7 @@ namespace Acme.SimpleTaskApp.Orders
 		// Các hàm bên user
 
 		//Tạo order khi bấm mua ngay 
-		public async Task<int> CreateOrderDirectAsync(long userId, int productId, int quantity, string shippingName, string shippingAddress, string ward, string district, string province, string shippingPhone)
+		public async Task<int> CreateOrderDirectAsync(long userId, int productId, int quantity, string shippingName, string shippingAddress, string ward, string province, string shippingPhone)
 		{
 			// Kiểm tra người dùng
 			if (userId <= 0)
@@ -224,7 +224,7 @@ namespace Acme.SimpleTaskApp.Orders
 
 			// Tính tổng tiền
 			var totalPrice = product.Price * quantity;
-			var address = $"{shippingAddress}, {ward}, {district}, {province}";
+			var address = $"{shippingAddress}, {ward}	, {province}";
 			// Tạo đơn hàng
 			var order = new Order
 			{
@@ -257,7 +257,7 @@ namespace Acme.SimpleTaskApp.Orders
 			return order.Id;
 		}
 		// Tạo order từ giỏ hàng
-		public async Task<int> CreateOrderFromCartAsync(long userId, string shippingName, string shippingAddress, string ward, string district, string province, string shippingPhone)
+		public async Task<int> CreateOrderFromCartAsync(long userId, string shippingName, string shippingAddress, string ward, string province, string shippingPhone)
 		{
 			if (userId == 0)
 			{
@@ -278,7 +278,7 @@ namespace Acme.SimpleTaskApp.Orders
 
 			var totalAmount = cartItems.Sum(x => x.Price * x.Quantity);
 
-			var address = $"{shippingAddress}, {ward}, {district}, {province}";
+			var address = $"{shippingAddress}, {ward}, {province}";
 
 			var order = new Order(userId, totalAmount, false, "Thanh toán khi nhận hàng", "Đang xử lý", shippingName, address, shippingPhone)
 			{
